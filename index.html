@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Integrado de Precios y Proyección · CDA / Survial</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=Inter:wght@400;500;600&family=Archivo+Narrow:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#10161F; --ink-2:#1B2634; --bg:#EDEFEC; --panel:#FFFFFF;
+    --amber:#E9A020; --steel:#33475B; --steel-l:#5B7288; --line:#D6DAD5;
+    --alza:#C0492F; --base:#E9A020; --baja:#2E7D5B; --muted:#6A7480; --track:#E4E7E3;
+    --up:#C0492F; --down:#2E7D5B;
+    --shadow:0 1px 2px rgba(16,22,31,.06), 0 8px 24px -12px rgba(16,22,31,.18);
+  }
+  *{box-sizing:border-box} html,body{margin:0;padding:0}
+  body{background:var(--bg);color:var(--ink);font-family:'Inter',ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;-webkit-font-smoothing:antialiased;line-height:1.5}
+  .wrap{max-width:1160px;margin:0 auto;padding:0 22px 64px}
+  .topbar{background:var(--ink);color:#EEF1F4;border-bottom:3px solid var(--amber)}
+  .topbar .inner{max-width:1160px;margin:0 auto;padding:16px 22px;display:flex;gap:18px;align-items:flex-end;justify-content:space-between;flex-wrap:wrap}
+  .eyebrow{font-family:'Archivo Narrow',sans-serif;font-weight:700;letter-spacing:.22em;text-transform:uppercase;font-size:11px;color:var(--amber);margin:0 0 4px}
+  h1{font-family:'Archivo',sans-serif;font-weight:800;font-size:23px;line-height:1.08;margin:0;letter-spacing:-.01em}
+  .sub{color:#9FB0C0;font-size:12.5px;margin-top:4px}
+  .toolbar{display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap}
+  .sync{font-size:11px;color:#9FB0C0;align-self:center;margin-right:4px}
+  .sync .dot2{display:inline-block;width:7px;height:7px;border-radius:50%;background:#E7B27A;margin-right:5px}
+  .sync.ok .dot2{background:#7FD79B}
+  .datefield{display:flex;flex-direction:column;gap:3px;margin-right:4px}
+  .datefield label{font-family:'Archivo Narrow',sans-serif;letter-spacing:.12em;text-transform:uppercase;font-size:9.5px;color:#8FA0B0}
+  .datefield input{background:var(--ink-2);border:1px solid #2C3A4A;color:#EEF1F4;border-radius:7px;padding:6px 8px;font-size:12.5px}
+  .btn{font-family:'Inter';font-weight:600;font-size:12.5px;cursor:pointer;border-radius:8px;padding:8px 12px;border:1px solid #2C3A4A;background:var(--ink-2);color:#EEF1F4;transition:.15s}
+  .btn:hover{border-color:var(--amber);color:#fff}
+  .btn.primary{background:var(--amber);border-color:var(--amber);color:#231703}
+
+  /* tabs */
+  .tabs{background:var(--ink);border-bottom:1px solid #26313E;position:sticky;top:0;z-index:20}
+  .tabs .inner{max-width:1160px;margin:0 auto;padding:0 22px;display:flex;gap:4px;flex-wrap:wrap}
+  .tabbtn{background:none;border:none;color:#9FB0C0;font-family:'Archivo Narrow',sans-serif;font-weight:700;letter-spacing:.08em;text-transform:uppercase;font-size:12px;padding:12px 16px;cursor:pointer;border-bottom:3px solid transparent}
+  .tabbtn:hover{color:#EAEFF4}
+  .tabbtn.active{color:#fff;border-bottom-color:var(--amber)}
+  .tab{display:none}.tab.active{display:block}
+
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:24px 0 8px}
+  .kpi{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:15px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+  .kpi::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--amber)}
+  .kpi.steel::before{background:var(--steel)}
+  .kpi .lab{font-family:'Archivo Narrow',sans-serif;letter-spacing:.12em;text-transform:uppercase;font-size:10px;color:var(--muted)}
+  .kpi .val{font-family:'Archivo',sans-serif;font-weight:800;font-size:22px;margin-top:6px;line-height:1}
+  .kpi .val small{font-weight:600;font-size:13px;color:var(--steel-l)}
+  .kpi .foot{font-size:11px;color:var(--muted);margin-top:6px}
+
+  section{margin-top:28px}
+  .sec-head{display:flex;align-items:baseline;gap:12px;border-bottom:2px solid var(--ink);padding-bottom:8px;margin-bottom:16px}
+  .sec-head .num{font-family:'Archivo Narrow',sans-serif;font-weight:700;color:var(--amber);font-size:14px;letter-spacing:.1em}
+  .sec-head h2{font-family:'Archivo',sans-serif;font-weight:700;font-size:18px;margin:0}
+  .sec-head .meta{margin-left:auto;font-size:12px;color:var(--muted)}
+  .prod-tag{display:inline-block;font-family:'Archivo Narrow',sans-serif;font-weight:700;letter-spacing:.08em;text-transform:uppercase;font-size:11px;padding:3px 10px;border-radius:6px;margin-bottom:10px}
+  .prod-tag.petro{background:#FBEFD6;color:#8A5A08;border:1px solid #EAD3A0}
+  .prod-tag.repsol{background:#EAEFF3;color:#33475B;border:1px solid #CBD6DF}
+
+  table{width:100%;border-collapse:collapse;background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden;font-size:12.5px}
+  thead th{background:var(--ink);color:#EAEFF4;font-family:'Archivo Narrow',sans-serif;font-weight:600;letter-spacing:.05em;text-transform:uppercase;font-size:10.5px;text-align:left;padding:9px 10px}
+  tbody td{padding:8px 10px;border-top:1px solid var(--line);vertical-align:top}
+  tbody tr:nth-child(even){background:#FAFBFA}
+  td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
+  td.empty{color:#B7BEC5;font-style:italic;text-align:right}
+  .note{font-size:12px;color:var(--muted);margin-top:12px;line-height:1.6}
+  .note b{color:var(--ink)}
+
+  .chart-card{background:var(--ink);border-radius:14px;padding:18px 18px 10px;color:#EAEFF4}
+  .legend{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:6px;font-size:12px;color:#C6D2DD}
+  .legend .it{display:flex;align-items:center;gap:7px}
+  .legend .sw{width:16px;height:3px;border-radius:2px}
+
+  .tag{display:inline-block;font-size:10.5px;font-weight:700;padding:2px 9px;border-radius:20px;font-family:'Archivo Narrow',sans-serif;letter-spacing:.05em;text-transform:uppercase}
+  .tag.alza{background:#F7E0DA;color:#9A3320}.tag.base{background:#FBEFD6;color:#8A5A08}.tag.baja{background:#DDEEE4;color:#22684A}
+  ul.factores{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  ul.factores li{background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:11px 13px;box-shadow:var(--shadow);font-size:12px}
+  ul.factores li b{display:block;font-family:'Archivo',sans-serif;font-size:12px;margin-bottom:3px}
+
+  /* tablero */
+  .verdict{border-radius:16px;padding:18px 20px;margin:6px 0;color:#fff;box-shadow:var(--shadow);display:flex;gap:20px;align-items:center;flex-wrap:wrap}
+  .verdict.alza{background:linear-gradient(100deg,#A83A22,#C0492F)}
+  .verdict.base{background:linear-gradient(100deg,#B77C13,#E9A020)}
+  .verdict.baja{background:linear-gradient(100deg,#245F44,#2E7D5B)}
+  .verdict .big{font-family:'Archivo',sans-serif;font-weight:800;font-size:28px;letter-spacing:-.02em;line-height:1}
+  .verdict .lab{font-family:'Archivo Narrow',sans-serif;letter-spacing:.18em;text-transform:uppercase;font-size:11px;opacity:.9}
+  .verdict .rec{font-size:14px;max-width:620px}
+  .verdict .win{font-family:'Archivo Narrow',sans-serif;text-transform:uppercase;letter-spacing:.1em;font-size:11px;background:rgba(255,255,255,.18);padding:4px 10px;border-radius:20px;margin-top:8px;display:inline-block}
+  .params{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+  .field label{display:block;font-family:'Archivo Narrow',sans-serif;letter-spacing:.1em;text-transform:uppercase;font-size:10px;color:var(--muted);margin-bottom:4px}
+  .field input{width:100%;border:1px solid var(--line);border-radius:9px;padding:9px 11px;font-size:15px;font-weight:600;background:var(--panel)}
+  .field .hint{font-size:10.5px;color:var(--muted);margin-top:3px}
+  .thermo{background:var(--ink);border-radius:14px;padding:18px 20px 12px;color:#EAEFF4}
+  .thermo h3{font-family:'Archivo Narrow',sans-serif;font-weight:700;letter-spacing:.12em;text-transform:uppercase;font-size:11px;color:#9FB0C0;margin:0 0 16px}
+  .bar{position:relative;height:24px;border-radius:8px;overflow:hidden;display:flex}
+  .bar .z{height:100%}.bar .z.baja{background:#2E7D5B}.bar .z.base{background:#E9A020}.bar .z.alza{background:#C0492F}
+  .scale{position:relative;height:20px;margin-top:4px}.scale span{position:absolute;transform:translateX(-50%);font-size:10.5px;color:#9FB0C0}
+  .marker{position:absolute;top:-8px}.marker .pin{position:absolute;top:-20px;left:50%;transform:translateX(-50%);background:#fff;color:#10161F;font-weight:800;font-size:12px;padding:2px 8px;border-radius:6px;white-space:nowrap;font-family:'Archivo',sans-serif}
+  .marker .stem{position:absolute;left:50%;top:0;width:2px;height:32px;background:#fff;transform:translateX(-50%)}
+  tr.rowbase{background:#FBEFD6}tr.rowalza{background:#F7E0DA}tr.rowbaja{background:#DDEEE4}
+  .delta.up{color:var(--alza);font-weight:700}.delta.down{color:var(--baja);font-weight:700}
+  tr.hl{outline:2px solid var(--ink);outline-offset:-2px}
+  .narr{background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--amber);border-radius:12px;padding:15px 17px;box-shadow:var(--shadow);font-size:14px;line-height:1.6}
+  .disc{background:#FBF5E7;border:1px solid #EAD9A8;border-radius:10px;padding:12px 14px;font-size:12px;color:#6B5518;margin-top:16px}
+
+  /* drawer alertas */
+  .drawer{position:fixed;inset:0;background:rgba(16,22,31,.55);display:none;z-index:40;padding:24px}
+  .drawer.open{display:flex}
+  .drawer .card{background:var(--panel);max-width:640px;width:100%;margin:auto;border-radius:16px;box-shadow:0 30px 80px -20px rgba(0,0,0,.5);display:flex;flex-direction:column;max-height:90vh}
+  .drawer .hd{padding:16px 20px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}
+  .drawer .hd h3{margin:0;font-family:'Archivo',sans-serif;font-size:16px}
+  .drawer .bd{padding:16px 20px;overflow:auto}
+  .mailrow{display:flex;gap:8px;flex-wrap:wrap}.mailrow input{flex:1;min-width:180px;border:1px solid var(--line);border-radius:8px;padding:9px 11px;font-size:13px}
+  .chips{display:flex;flex-wrap:wrap;gap:7px;margin:10px 0}
+  .chip{display:inline-flex;align-items:center;gap:7px;background:#EEF1EF;border:1px solid var(--line);border-radius:20px;padding:5px 6px 5px 12px;font-size:12.5px}
+  .chip button{border:none;background:#D7DBD7;border-radius:50%;width:18px;height:18px;cursor:pointer}
+  .drawer .ft{padding:12px 20px;border-top:1px solid var(--line);display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .drawer .msg{font-size:12px;margin-right:auto}.drawer .msg.err{color:#B4342B;font-weight:600}.drawer .msg.ok{color:var(--baja);font-weight:600}
+  #toaster{position:fixed;right:18px;bottom:18px;z-index:60;display:flex;flex-direction:column;gap:8px;max-width:340px}
+  .toast{background:var(--ink);color:#fff;border-left:4px solid var(--amber);border-radius:10px;padding:11px 14px;font-size:13px;box-shadow:0 10px 30px -8px rgba(0,0,0,.5)}
+  footer{margin-top:36px;padding-top:16px;border-top:1px solid var(--line);font-size:11.5px;color:var(--muted)}
+  @media (max-width:860px){.kpis,.params{grid-template-columns:repeat(2,1fr)}ul.factores{grid-template-columns:1fr}.verdict .big{font-size:23px}}
+  @media print{.tabs,.toolbar,.drawer,#toaster{display:none!important}.tab{display:block!important}body{background:#fff}.topbar,.chart-card,.thermo{background:#fff;color:#000;border:1px solid #000}.eyebrow,.sub{color:#000}section{break-inside:avoid}}
+</style>
+</head>
+<body>
+<div class="topbar"><div class="inner">
+  <div><p class="eyebrow">UNNA Transporte · CDA / Survial</p>
+  <h1>Dashboard integrado — Precios & Proyección</h1>
+  <div class="sub">Petroperú / Repsol · Crudo Brent · Indicador de compras · <span id="subFecha"></span></div></div>
+  <div class="toolbar">
+    <div class="sync" id="syncBox"><span class="dot2"></span><span id="syncStatus">Cargando…</span></div>
+    <div class="datefield"><label>Datos al</label><input type="date" id="fechaDatos"></div>
+    <button class="btn" id="btnAlertas">✉ Alertas</button>
+    <button class="btn" id="btnRefrescar">↻ Actualizar</button>
+    <button class="btn" id="btnPrint">Imprimir</button>
+  </div>
+</div></div>
+
+<div class="tabs"><div class="inner">
+  <button class="tabbtn active" data-tab="precios">Precios de lista</button>
+  <button class="tabbtn" data-tab="tendencia">Tendencia</button>
+  <button class="tabbtn" data-tab="proyeccion">Proyección 6 meses</button>
+  <button class="tabbtn" data-tab="tablero">Tablero gerencial</button>
+</div></div>
+
+<div class="wrap">
+
+  <!-- TAB PRECIOS -->
+  <div class="tab active" id="tab-precios">
+    <div class="kpis" id="kpis"></div>
+    <section>
+      <div class="sec-head"><span class="num">01</span><h2>Combustible — precio de lista</h2><span class="meta" id="comb-meta"></span></div>
+      <div class="prod-tag petro">Petroperú</div><table id="petro-comb"></table>
+      <div class="prod-tag repsol" style="margin-top:16px">Repsol — La Pampilla</div><table id="repsol-comb"></table>
+      <div class="note" id="comb-note"></div>
+    </section>
+    <section>
+      <div class="sec-head"><span class="num">02</span><h2>Cemento asfáltico — precio de lista</h2><span class="meta" id="asf-meta"></span></div>
+      <div class="prod-tag petro">Petroperú</div><table id="petro-asf"></table>
+      <div class="prod-tag repsol" style="margin-top:16px">Repsol — La Pampilla</div><table id="repsol-asf"></table>
+      <div class="note" id="asf-note"></div>
+    </section>
+  </div>
+
+  <!-- TAB TENDENCIA -->
+  <div class="tab" id="tab-tendencia">
+    <section>
+      <div class="sec-head"><span class="num">03</span><h2>Tendencia de precios de lista</h2><span class="meta">Se extiende con cada actualización</span></div>
+      <div class="chart-card"><div class="legend" id="tl-legend"></div><div id="tl-chart"></div></div>
+    </section>
+  </div>
+
+  <!-- TAB PROYECCION -->
+  <div class="tab" id="tab-proyeccion">
+    <div class="kpis" id="proy-kpis"></div>
+    <section>
+      <div class="sec-head"><span class="num">04</span><h2>Proyección del Brent — 6 meses (mensual)</h2></div>
+      <p class="note" style="font-size:13px">Comportamiento mensual esperado del Brent, Ago-2026 a Feb-2027, en tres escenarios. Base = EIA (STEO ago-2026); alza y baja = rangos con IEA/OPEP/bancos según los factores de riesgo.</p>
+      <div class="chart-card"><div class="legend" id="proy-legend"></div><div id="proy-chart"></div></div>
+    </section>
+    <section>
+      <div class="sec-head"><span class="num">05</span><h2>Factores que mueven el precio</h2></div>
+      <ul class="factores" id="factores"></ul>
+    </section>
+    <section>
+      <div class="sec-head"><span class="num">06</span><h2>Qué dice cada institución</h2></div>
+      <table id="tblInst"></table>
+      <div class="note">Fuentes: EIA STEO (11-ago-2026), IEA OMR (12-ago-2026), OPEP MOMR (12-ago-2026), bancos vía prensa financiera.</div>
+    </section>
+  </div>
+
+  <!-- TAB TABLERO -->
+  <div class="tab" id="tab-tablero">
+    <div class="verdict" id="verdict" style="margin-top:24px">
+      <div><div class="lab">Señal del período</div><div class="big" id="vSignal">—</div><div class="win" id="vWin"></div></div>
+      <div class="rec" id="vRec"></div>
+    </div>
+    <div class="kpis">
+      <div class="kpi"><div class="lab">Brent actual</div><div class="val" id="kBrent">—</div><div class="foot" id="kBrentFoot"></div></div>
+      <div class="kpi"><div class="lab">Zona / escenario</div><div class="val" id="kZona">—</div><div class="foot">según umbrales</div></div>
+      <div class="kpi steel"><div class="lab">Factura diésel · mes</div><div class="val" id="kFactura">—</div><div class="foot" id="kFacturaFoot"></div></div>
+      <div class="kpi steel"><div class="lab">Exposición entre escenarios</div><div class="val" id="kExpo">—</div><div class="foot">rango factura mensual</div></div>
+    </div>
+    <section>
+      <div class="sec-head"><span class="num">07</span><h2>Supuestos (editables)</h2></div>
+      <div class="params">
+        <div class="field"><label>Brent actual (US$/bbl)</label><input id="inBrent" type="number" step="0.1"><div class="hint">referencia de mercado</div></div>
+        <div class="field"><label>Consumo mensual diésel (gal)</label><input id="inGal" type="number" step="1000" value="40000"><div class="hint">ajusta a tu volumen real</div></div>
+        <div class="field"><label>Precio diésel actual (S/gal)</label><input id="inDiesel" type="number" step="0.01"><div class="hint">de la lista Petroperú</div></div>
+        <div class="field"><label>Traslado crudo→diésel (%)</label><input id="inPass" type="number" step="5" value="60"><div class="hint">cuánto del Brent pasa al local</div></div>
+      </div>
+    </section>
+    <section>
+      <div class="sec-head"><span class="num">08</span><h2>Termómetro del Brent</h2></div>
+      <div class="thermo"><h3>Posición actual frente a los umbrales</h3><div class="bar" id="bar"></div><div style="position:relative"><div class="scale" id="scale"></div></div></div>
+    </section>
+    <section>
+      <div class="sec-head"><span class="num">09</span><h2>Impacto en la factura mensual</h2></div>
+      <table id="tblImpacto"></table>
+    </section>
+    <section>
+      <div class="sec-head"><span class="num">10</span><h2>Lectura ejecutiva</h2></div>
+      <div class="narr" id="narrativa"></div>
+      <div class="disc"><b>Nota:</b> el crudo no se traslada 1:1 al diésel/asfalto (rezago, impuestos, margen, tipo de cambio USD/PEN). Umbrales y % de traslado son supuestos de planificación, no asesoría de inversión. Contrastar con las listas reales.</div>
+    </section>
+  </div>
+
+  <footer id="foot"></footer>
+</div>
+
+<!-- drawer alertas -->
+<div class="drawer" id="drawerAlertas"><div class="card">
+  <div class="hd"><h3>✉ Alertas por correo</h3><button class="btn" id="btnCloseAl">Cerrar</button></div>
+  <div class="bd">
+    <p class="note" style="margin-top:0">Correos que reciben la alerta de alza/baja. <b>Enviar prueba</b> intenta el flujo de Power Automate (si pusiste la URL) y siempre deja el correo listo para copiar/pegar en Outlook.</p>
+    <div class="mailrow"><input type="email" id="emailInput" placeholder="nombre@unna.pe"><button class="btn" id="btnAddEmail">Agregar</button></div>
+    <div class="chips" id="chips"></div>
+    <div style="font-size:11px;color:var(--muted);margin:12px 0 3px;font-weight:600">URL DE POWER AUTOMATE (opcional)</div>
+    <div class="mailrow"><input type="url" id="pwaUrl" placeholder="https://...logic.azure.com/..." style="flex:1"></div>
+    <div id="mailPreview" style="display:none;margin-top:14px;border-top:1px solid var(--line);padding-top:12px">
+      <div class="note" style="margin-top:0"><b>Correo listo.</b> Cópialo y pégalo en un correo nuevo de Outlook.</div>
+      <div style="font-size:11px;color:var(--muted);margin:8px 0 3px;font-weight:600">PARA</div><div class="mailrow"><input id="pvTo" readonly><button class="btn" data-copy="pvTo">Copiar</button></div>
+      <div style="font-size:11px;color:var(--muted);margin:8px 0 3px;font-weight:600">ASUNTO</div><div class="mailrow"><input id="pvSubj" readonly><button class="btn" data-copy="pvSubj">Copiar</button></div>
+      <div style="font-size:11px;color:var(--muted);margin:8px 0 3px;font-weight:600">MENSAJE</div><textarea id="pvBody" readonly style="width:100%;height:130px;font-family:ui-monospace,monospace;font-size:12px;border:1px solid var(--line);border-radius:8px;padding:10px"></textarea>
+      <div style="display:flex;gap:8px;margin-top:8px"><button class="btn primary" id="btnCopiarTodo">Copiar todo</button></div>
+    </div>
+  </div>
+  <div class="ft"><span class="msg" id="alMsg">&nbsp;</span>
+    <button class="btn" id="btnEnviarResumen">Enviar resumen</button>
+    <button class="btn" id="btnGuardarAl">Guardar</button>
+    <button class="btn primary" id="btnEnviarPrueba">Enviar prueba</button></div>
+</div></div>
+<div id="toaster"></div>
+
+<script>
+/* ===================== DATOS ===================== */
+const DATA = {
+  meta:{ fecha_datos:"2026-08-15", generado:"2026-08-15" },
+  combustible:{ unidad:"S/ galón · con impuestos · uso interno S-50",
+    petroperu:{ lista:"COMB-57-2026", vigente_desde:"2026-08-11", plantas:[
+      {planta:"Talara",abastece:"Ruta norte / Canchaque",diesel_uv:23.1162,diesel_s50:24.6856,gasohol_reg:17.4390,gasohol_prem:17.9516,glp_kg:2.9736},
+      {planta:"Piura",abastece:"Canchaque",diesel_uv:23.3168,diesel_s50:24.8862,gasohol_reg:17.5537,gasohol_prem:18.1555,glp_kg:null},
+      {planta:"Conchán",abastece:"Ancón (Lima)",diesel_uv:23.0926,diesel_s50:24.6620,gasohol_reg:17.8213,gasohol_prem:18.1682,glp_kg:null},
+      {planta:"Callao",abastece:"Ancón (Lima)",diesel_uv:23.0926,diesel_s50:24.6620,gasohol_reg:17.8213,gasohol_prem:18.1682,glp_kg:2.9500},
+      {planta:"Pisco",abastece:"Ruta a Puquio",diesel_uv:22.9628,diesel_s50:24.5322,gasohol_reg:18.0125,gasohol_prem:18.3849,glp_kg:null},
+      {planta:"Mollendo",abastece:"Sur / Abancay–Puquio",diesel_uv:23.7534,diesel_s50:25.3228,gasohol_reg:18.6114,gasohol_prem:19.0858,glp_kg:null},
+      {planta:"Cusco",abastece:"Abancay",diesel_uv:24.3198,diesel_s50:25.8892,gasohol_reg:null,gasohol_prem:19.6310,glp_kg:null}
+    ]},
+    repsol:{ lista:"PrecioLima (La Pampilla)", vigente_desde:"2026-08-04",
+      nota:"Reporte oficial Repsol/RELAPASAA · Lima. Precio de lista con IGV (sin recargo FISE).",
+      plantas:[{planta:"La Pampilla (Callao)",abastece:"Ancón (Lima)",diesel_uv:25.2048,diesel_s50:25.2048,gasohol_reg:18.5222,gasohol_prem:18.9329,glp_kg:2.4072}]}
+  },
+  asfalto:{ unidad:"S/ galón + IGV · ex-planta", igv:0.18,
+    petroperu:{ lista:"ASFA-08-2026", vigente_desde:"2026-08-15", plantas:"Talara / Conchán",
+      items:[{familia:"Cemento asfáltico",grado:"PEN 40/50 a 120/150",precio:16.29},{familia:"Cemento asfáltico",grado:"PEN 20/30",precio:16.58},{familia:"Cemento asfáltico",grado:"PEN 10/20",precio:15.35},{familia:"Asfalto líquido",grado:"RC-70 / RC-250",precio:16.33},{familia:"Asfalto líquido",grado:"MC-30 / MC-70",precio:16.88}],
+      banda:{min:15.35,max:16.93}},
+    repsol:{ lista:"Recosac 07-08-2026", vigente_desde:"2026-08-07", nota:"Repsol/RECOSAC · La Pampilla. Sin IGV.",
+      items:[{familia:"Cemento asfáltico",grado:"CA 60/70",precio:15.99},{familia:"Cemento asfáltico",grado:"CA 85/100",precio:15.99},{familia:"Cemento asfáltico",grado:"CA 120/150",precio:15.99}]}
+  },
+  timeline:{ unidad:"S/ galón", series:[
+    {clave:"diesel_talara",etiqueta:"Diésel B5 UV S-50 · Petroperú (Talara)",color:"#E9A020",fuente:{tipo:"comb_planta",planta:"Talara",campo:"diesel_uv"},puntos:[{fecha:"2026-03-17",valor:19.06},{fecha:"2026-08-04",valor:23.66},{fecha:"2026-08-11",valor:23.12}]},
+    {clave:"diesel_repsol",etiqueta:"Diésel B5 S-50 · Repsol (La Pampilla)",color:"#C77D3A",fuente:{tipo:"comb_repsol",campo:"diesel_uv"},puntos:[{fecha:"2026-08-04",valor:25.2048}]},
+    {clave:"asfalto_min",etiqueta:"Cemento asfáltico · Petroperú (mín.)",color:"#5B7288",fuente:{tipo:"asfalto_banda",campo:"min"},puntos:[{fecha:"2026-07-23",valor:14.05},{fecha:"2026-08-07",valor:15.05},{fecha:"2026-08-15",valor:15.35}]},
+    {clave:"asfalto_repsol",etiqueta:"Cemento asfáltico · Repsol (CA 60/70)",color:"#3E8E7E",fuente:{tipo:"asfalto_repsol_item",grado:"CA 60/70",campo:"precio"},puntos:[{fecha:"2026-03-18",valor:15.32},{fecha:"2026-08-07",valor:15.99}]}
+  ]},
+  proyeccion:{
+    brent_spot:88.80,
+    meses:["Ago","Set","Oct","Nov","Dic","Ene 27","Feb 27"],
+    base:[88,85,82,78,76,74,72],
+    alza:[90,98,104,106,103,99,95],
+    baja:[86,80,75,71,68,66,64],
+    umbral_alza:95, umbral_base:75,
+    esc_ref:{base:78,alza:106,baja:70}
+  },
+  alertas:{ destinatarios:[], webhook_url:"" }
+};
+
+let state = structuredClone(DATA);
+let autoApply = true;
+
+const $=id=>document.getElementById(id);
+const S=n=>(n==null||isNaN(n))?"—":"S/ "+Number(n).toLocaleString('es-PE',{minimumFractionDigits:2,maximumFractionDigits:2});
+const S0=n=>(n==null||isNaN(n))?"—":"S/ "+Number(n).toLocaleString('es-PE',{maximumFractionDigits:0});
+const S4=n=>(n==null||isNaN(n))?"—":"S/ "+Number(n).toLocaleString('es-PE',{minimumFractionDigits:2,maximumFractionDigits:4});
+const U=n=>"US$ "+Number(n).toLocaleString('es-PE',{minimumFractionDigits:2,maximumFractionDigits:2});
+const fmtDate=iso=>{ if(!iso)return"—"; const [y,m,d]=iso.split("-").map(Number); const mm=["ene","feb","mar","abr","may","jun","jul","ago","set","oct","nov","dic"]; return `${d} ${mm[m-1]} ${y}`; };
+const cell=v=>v==null?`<td class="empty">por cargar</td>`:`<td class="num">${S4(v)}</td>`;
+function resolveCurrent(f,data){ if(!f)return null; try{
+  if(f.tipo==="comb_planta"){const p=data.combustible.petroperu.plantas.find(x=>x.planta===f.planta);return p?p[f.campo]:null;}
+  if(f.tipo==="asfalto_banda")return data.asfalto.petroperu.banda[f.campo];
+  if(f.tipo==="asfalto_repsol_item"){const it=data.asfalto.repsol.items.find(x=>x.grado===f.grado);return it?it[f.campo]:null;}
+  if(f.tipo==="comb_repsol"){const p=data.combustible.repsol.plantas[0];return p?p[f.campo]:null;}
+}catch(e){return null;} return null; }
+
+/* ===================== TABS ===================== */
+document.querySelectorAll('.tabbtn').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('.tabbtn').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active'); $('tab-'+b.dataset.tab).classList.add('active');
+}));
+
+/* ===================== PRECIOS ===================== */
+function renderKPIs(){
+  const cp=state.combustible.petroperu.plantas, dz=cp.map(p=>p.diesel_uv).filter(v=>typeof v==='number');
+  const minD=Math.min(...dz), minP=cp.find(p=>p.diesel_uv===minD), a=state.asfalto.petroperu, igv=a.igv??0.18;
+  $('kpis').innerHTML=`
+    <div class="kpi"><div class="lab">Diésel B5 UV S-50 · más bajo</div><div class="val">${S(minD)}</div><div class="foot">Petroperú ${minP?minP.planta:''}</div></div>
+    <div class="kpi"><div class="lab">Diésel · Repsol (La Pampilla)</div><div class="val">${S(state.combustible.repsol.plantas[0].diesel_uv)}</div><div class="foot">precio de lista c/IGV</div></div>
+    <div class="kpi steel"><div class="lab">Asfalto · banda con IGV</div><div class="val">${S(a.banda.min*(1+igv))} <small>–</small> ${S(a.banda.max*(1+igv))}</div><div class="foot">${a.lista}</div></div>
+    <div class="kpi steel"><div class="lab">Vigencias</div><div class="val" style="font-size:16px">Asf ${fmtDate(a.vigente_desde)}</div><div class="foot">Comb ${fmtDate(state.combustible.petroperu.vigente_desde)}</div></div>`;
+}
+function renderComb(){
+  const c=state.combustible; $('comb-meta').textContent=c.unidad;
+  const head=`<thead><tr><th>Planta</th><th>Abastece</th><th class="num">Diésel UV S-50</th><th class="num">Diésel S-50</th><th class="num">Gasohol Reg</th><th class="num">Gasohol Prem</th><th class="num">GLP S/kg</th></tr></thead>`;
+  const row=p=>`<tr><td><b>${p.planta}</b></td><td style="color:var(--muted)">${p.abastece||''}</td>${cell(p.diesel_uv)}${cell(p.diesel_s50)}${cell(p.gasohol_reg)}${cell(p.gasohol_prem)}${cell(p.glp_kg)}</tr>`;
+  $('petro-comb').innerHTML=head+`<tbody>${c.petroperu.plantas.map(row).join("")}</tbody>`;
+  $('repsol-comb').innerHTML=head+`<tbody>${c.repsol.plantas.map(row).join("")}</tbody>`;
+  $('comb-note').innerHTML=`<b>Petroperú:</b> ${c.petroperu.lista}, vig. ${fmtDate(c.petroperu.vigente_desde)}. <b>Repsol:</b> ${c.repsol.nota}`;
+}
+function renderAsf(){
+  const a=state.asfalto, igv=a.igv??0.18; $('asf-meta').textContent=a.unidad;
+  const head=`<thead><tr><th>Familia</th><th>Grado</th><th class="num">Sin IGV</th><th class="num">Con IGV</th></tr></thead>`;
+  const row=it=>`<tr><td>${it.familia}</td><td>${it.grado}</td>${cell(it.precio)}<td class="num">${it.precio!=null?S(it.precio*(1+igv)):'—'}</td></tr>`;
+  $('petro-asf').innerHTML=head+`<tbody>${a.petroperu.items.map(row).join("")}</tbody>`;
+  $('repsol-asf').innerHTML=head+`<tbody>${a.repsol.items.map(row).join("")}</tbody>`;
+  $('asf-note').innerHTML=`<b>Petroperú:</b> ${a.petroperu.lista}, vig. ${fmtDate(a.petroperu.vigente_desde)}, ex-planta (sumar flete). <b>Repsol:</b> ${a.repsol.nota}`;
+}
+
+/* ===================== TENDENCIA ===================== */
+function lineChart(el, series, opts){
+  const W=900,H=300,padL=48,padR=16,padT=16,padB=40;
+  const pts=series.flatMap(s=>s.puntos.map(p=>p.valor));
+  if(pts.length===0){el.innerHTML="";return;}
+  let vMin=Math.min(...pts), vMax=Math.max(...pts);
+  const vpad=Math.max((vMax-vMin)*0.15,0.5); vMin=Math.floor(vMin-vpad); vMax=Math.ceil(vMax+vpad);
+  const labels=opts.labels;
+  const X=i=>padL+(labels.length>1?(i/(labels.length-1)):0.5)*(W-padL-padR);
+  const Y=v=>padT+(1-(v-vMin)/(vMax-vMin))*(H-padT-padB);
+  let g="";
+  for(let k=0;k<=4;k++){ const v=vMin+(vMax-vMin)*k/4, y=Y(v);
+    g+=`<line x1="${padL}" y1="${y}" x2="${W-padR}" y2="${y}" stroke="#26313E"/><text x="${padL-8}" y="${y+4}" fill="#7C8EA0" font-size="11" text-anchor="end">${opts.money?U(v):S0(v)}</text>`; }
+  labels.forEach((l,i)=>{ g+=`<text x="${X(i)}" y="${H-14}" fill="#9FB0C0" font-size="10.5" text-anchor="middle">${l}</text>`; });
+  series.forEach(s=>{
+    const d=s.puntos.map(p=>`${X(p.i)},${Y(p.valor)}`).join(" ");
+    if(s.puntos.length>1) g+=`<polyline points="${d}" fill="none" stroke="${s.color}" stroke-width="${s.dash?2:2.6}" ${s.dash?'stroke-dasharray="5 4"':''}/>`;
+    s.puntos.forEach((p,i)=>{ g+=`<circle cx="${X(p.i)}" cy="${Y(p.valor)}" r="3.4" fill="${s.color}"/>`;
+      if(i===s.puntos.length-1) g+=`<text x="${X(p.i)-6}" y="${Y(p.valor)-8}" fill="#EAEFF4" font-size="10.5" font-weight="700" text-anchor="end">${opts.money?U(p.valor):S(p.valor)}</text>`; });
+  });
+  el.innerHTML=`<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto" xmlns="http://www.w3.org/2000/svg">${g}</svg>`;
+}
+function renderTendencia(){
+  const tl=state.timeline;
+  $('tl-legend').innerHTML=tl.series.map(s=>`<div class="it"><span class="sw" style="background:${s.color}"></span>${s.etiqueta}</div>`).join("");
+  const allDates=[...new Set(tl.series.flatMap(s=>s.puntos.map(p=>p.fecha)))].sort();
+  const series=tl.series.map(s=>({color:s.color,puntos:s.puntos.slice().sort((a,b)=>a.fecha<b.fecha?-1:1).map(p=>({i:allDates.indexOf(p.fecha),valor:p.valor}))}));
+  lineChart($('tl-chart'), series, {labels:allDates.map(fmtDate), money:false});
+}
+
+/* ===================== PROYECCION ===================== */
+function renderProyeccion(){
+  const p=state.proyeccion;
+  $('proy-kpis').innerHTML=`
+    <div class="kpi"><div class="lab">Brent spot (11-ago)</div><div class="val">${U(p.brent_spot)}</div><div class="foot">referencia</div></div>
+    <div class="kpi"><div class="lab">Base 4T26 (EIA)</div><div class="val">${U(p.esc_ref.base)}</div><div class="foot">trayectoria central</div></div>
+    <div class="kpi steel"><div class="lab">Alza (pico Ormuz)</div><div class="val">${U(p.esc_ref.alza)}</div><div class="foot">Goldman &gt;US$110</div></div>
+    <div class="kpi steel"><div class="lab">Baja (superávit)</div><div class="val">${U(p.esc_ref.baja)}</div><div class="foot">J.P. Morgan ~US$60</div></div>`;
+  $('proy-legend').innerHTML=`<div class="it"><span class="sw" style="background:#E9A020"></span>Base (EIA)</div><div class="it"><span class="sw" style="background:#E58C7A"></span>Alza</div><div class="it"><span class="sw" style="background:#7FBF9C"></span>Baja</div>`;
+  const mk=(arr,color,dash)=>({color,dash,puntos:arr.map((v,i)=>({i,valor:v}))});
+  lineChart($('proy-chart'), [mk(p.alza,"#E58C7A",true),mk(p.baja,"#7FBF9C",true),mk(p.base,"#E9A020",false)], {labels:p.meses, money:true});
+  const fac=[["Estrecho de Ormuz","~20% del crudo mundial; tránsito cayó de 21.6 a 4.9 mb/d (2T26). Factor dominante."],["Producción cerrada","5.5 mb/d en julio; EIA deja ~0.6 mb/d residual hasta fin de 2027."],["Conflicto EE.UU.–Irán / talks Irán–Omán","La reapertura del estrecho aún no se concreta."],["Bab el-Mandeb","Amenaza de bloqueo a exportaciones saudíes: riesgo alcista."],["Inventarios en mínimos","IEA: <7.9 bn bbl en julio, mínimo desde abr-2025. Poco colchón."],["Política OPEP+","El ritmo de desmonte de recortes presiona el precio a la baja."],["Demanda (Asia/China)","OPEP recortó demanda 2026 a +0.6 mb/d; recuperación en 2027 (+2.2)."],["Oferta no-OPEP récord","EE.UU. ~13.8 mb/d 2026: colchón bajista estructural."]];
+  $('factores').innerHTML=fac.map(f=>`<li><b>${f[0]}</b>${f[1]}</li>`).join("");
+  const inst=[["EIA — STEO (11-ago)","Base $85 (3T26)→$78 (4T26)→$69 (2027).","Referencia central"],["IEA — OMR (12-ago)","Oferta 2026 a 102 mb/d; inventarios en mínimos.","Oferta ajustada"],["OPEP — MOMR (12-ago)","Demanda 2026 +0.6; 2027 +2.2 mb/d (Asia).","Constructivo demanda"],["Goldman Sachs","Prom. 2026 $85; picos &gt;$110.","Alcista ante shock"],["J.P. Morgan","~$60 promedio 2026.","Bajista / superávit"]];
+  $('tblInst').innerHTML=`<thead><tr><th>Fuente</th><th>Visión</th><th>Sesgo</th></tr></thead><tbody>`+inst.map(r=>`<tr><td><b>${r[0]}</b></td><td style="font-size:12px">${r[1]}</td><td style="font-size:12px">${r[2]}</td></tr>`).join("")+`</tbody>`;
+}
+
+/* ===================== TABLERO ===================== */
+function seedTablero(){
+  const p=state.proyeccion;
+  const tal=state.combustible.petroperu.plantas.find(x=>x.planta==='Talara');
+  if(!$('inBrent').value) $('inBrent').value=p.brent_spot;
+  if(!$('inDiesel').value) $('inDiesel').value=(tal?tal.diesel_uv:23.66).toFixed(2);
+}
+function zona(b){ const p=state.proyeccion; return b>p.umbral_alza?'alza':(b>=p.umbral_base?'base':'baja'); }
+function recomputeTablero(){
+  const p=state.proyeccion, BMIN=55,BMAX=115;
+  const brent=parseFloat($('inBrent').value)||0, gal=parseFloat($('inGal').value)||0, diesel=parseFloat($('inDiesel').value)||0, pass=(parseFloat($('inPass').value)||0)/100;
+  const z=zona(brent), facturaNow=diesel*gal;
+  const rows=[['alza','Alza',p.esc_ref.alza],['base','Base',p.esc_ref.base],['baja','Baja',p.esc_ref.baja]];
+  const calc=rows.map(([cls,nom,b])=>{const pct=(b-brent)/(brent||1);const de=diesel*(1+pass*pct);const c=de*gal;return{cls,nom,b,de,c,delta:c-facturaNow};});
+  const costs=calc.map(c=>c.c), expo=Math.max(...costs)-Math.min(...costs);
+  $('kBrent').textContent=U(brent); $('kBrentFoot').textContent='zona '+z;
+  $('kZona').textContent=z.toUpperCase();
+  $('kFactura').textContent=S0(facturaNow); $('kFacturaFoot').textContent=`${gal.toLocaleString('es-PE')} gal × ${S(diesel)}`;
+  $('kExpo').textContent='± '+S0(expo);
+  const v=$('verdict'); v.className='verdict '+z; let sg,rec,win;
+  if(z==='alza'){sg='ALZA';win='Actuar esta semana';rec='Presión al alza en diésel y asfalto. Asegurar/adelantar compras, evaluar precio cerrado o coberturas y subir stock de seguridad.';}
+  else if(z==='base'){sg='BASE';win='Revisión quincenal';rec='Dentro de lo esperado. Planificación normal con seguimiento de las listas y del STEO.'+(brent>=90?' Brent en borde superior: vigilar.':'');}
+  else{sg='BAJA';win='Sin urgencia';rec='Posible alivio. Diferir compras no urgentes, renegociar y revisar el presupuesto a la baja.';}
+  $('vSignal').textContent=sg; $('vRec').textContent=rec; $('vWin').textContent=win;
+  const pos=Math.max(0,Math.min(1,(brent-BMIN)/(BMAX-BMIN)))*100;
+  const wB=((p.umbral_base-BMIN)/(BMAX-BMIN))*100, wBa=((p.umbral_alza-p.umbral_base)/(BMAX-BMIN))*100;
+  $('bar').innerHTML=`<div class="z baja" style="width:${wB}%"></div><div class="z base" style="width:${wBa}%"></div><div class="z alza" style="width:${100-wB-wBa}%"></div><div class="marker" style="left:${pos}%"><div class="pin">${U(brent)}</div><div class="stem"></div></div>`;
+  $('scale').innerHTML=[BMIN,p.umbral_base,p.umbral_alza,BMAX].map(v=>`<span style="left:${((v-BMIN)/(BMAX-BMIN))*100}%">$${v}</span>`).join("");
+  $('tblImpacto').innerHTML=`<thead><tr><th>Escenario</th><th class="num">Brent ref</th><th class="num">Diésel esperado</th><th class="num">Factura mensual</th><th class="num">Δ vs actual</th></tr></thead><tbody>`+
+    calc.map(c=>{const up=c.delta>0,ar=Math.abs(c.delta)<1?'':(up?'▲':'▼');return `<tr class="row${c.cls}"><td><span class="tag ${c.cls}">${c.nom}</span></td><td class="num">${U(c.b)}</td><td class="num">${S(c.de)}</td><td class="num">${S0(c.c)}</td><td class="num delta ${up?'up':'down'}">${ar} ${S0(Math.abs(c.delta))}</td></tr>`;}).join("")+`</tbody>`;
+  const alza=calc.find(c=>c.cls==='alza'),baja=calc.find(c=>c.cls==='baja');
+  $('narrativa').innerHTML=`Con el Brent en <b>${U(brent)}</b>, la operación está en <b>zona ${z.toUpperCase()}</b>. A <b>${gal.toLocaleString('es-PE')} gal/mes</b>, la factura de diésel hoy es <b>${S0(facturaNow)}</b>. En <b>alza</b> (Brent ${U(alza.b)}) subiría a <b>${S0(alza.c)}</b> (${alza.delta>=0?'+':''}${S0(alza.delta)}); en <b>baja</b> (Brent ${U(baja.b)}) caería a <b>${S0(baja.c)}</b> (${S0(baja.delta)}). La exposición del período es de <b>± ${S0(expo)}</b> mensuales — ese es el monto a prever o cubrir.`;
+}
+
+/* ===================== RENDER GLOBAL ===================== */
+function renderAll(){ try{
+  renderKPIs(); renderComb(); renderAsf(); renderTendencia(); renderProyeccion();
+  seedTablero(); recomputeTablero();
+  $('subFecha').textContent='datos al '+fmtDate(state.meta.fecha_datos);
+  $('fechaDatos').value=state.meta.fecha_datos||"";
+  $('foot').textContent=`Datos al ${fmtDate(state.meta.fecha_datos)} · Fuentes: Petroperú, Repsol, EIA/IEA/OPEP (ago-2026) · CDA / Survial — UNNA Transporte.`;
+}catch(e){console.error(e);} }
+['inBrent','inGal','inDiesel','inPass'].forEach(id=>$(id).addEventListener('input',recomputeTablero));
+
+/* ===================== TOAST / ALERTAS ===================== */
+function toast(m){const t=document.createElement('div');t.className='toast';t.textContent=m;$('toaster').appendChild(t);setTimeout(()=>{t.style.transition='.3s';t.style.opacity='0';setTimeout(()=>t.remove(),300);},4000);}
+let destinatarios=(state.alertas&&state.alertas.destinatarios)?state.alertas.destinatarios.slice():[];
+let correoActual={asunto:'',cuerpo:''};
+const drawerAl=$('drawerAlertas');
+function setAlMsg(t,c){const m=$('alMsg');m.textContent=t;m.className="msg"+(c?" "+c:"");}
+function validEmail(e){return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);}
+function renderChips(){const b=$('chips');b.innerHTML=destinatarios.length?destinatarios.map((e,i)=>`<span class="chip">${e}<button data-i="${i}">×</button></span>`).join(""):'<span class="note" style="margin:0">Sin correos aún.</span>';b.querySelectorAll('button').forEach(x=>x.addEventListener('click',()=>{destinatarios.splice(+x.dataset.i,1);renderChips();}));}
+function openAlertas(){if(state.alertas&&state.alertas.webhook_url)$('pwaUrl').value=state.alertas.webhook_url;setAlMsg("");renderChips();drawerAl.classList.add('open');}
+function resumenPrecios(){const c=state.combustible,a=state.asfalto,igv=a.igv??0.18,tal=c.petroperu.plantas.find(p=>p.planta==='Talara')||{},rep=c.repsol.plantas[0]||{};
+  return `Precios de lista al ${fmtDate(state.meta.fecha_datos)}\n\nDiésel B5 UV S-50 · Petroperú (Talara): ${S(tal.diesel_uv)}\nDiésel B5 S-50 · Repsol (La Pampilla): ${S(rep.diesel_uv)}\nAsfalto Petroperú (banda c/IGV): ${S(a.petroperu.banda.min*(1+igv))} – ${S(a.petroperu.banda.max*(1+igv))}\nAsfalto Repsol CA 60/70 (sin IGV): ${S(a.repsol.items[0].precio)}\n\nFuente: listas oficiales Petroperú y Repsol.`; }
+function copiar(t){try{if(navigator.clipboard){navigator.clipboard.writeText(t);return true;}}catch(e){}try{const ta=document.createElement('textarea');ta.value=t;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);return true;}catch(e){return false;}}
+function prepararCorreo(a,c){correoActual={asunto:a,cuerpo:c};$('pvTo').value=destinatarios.join(', ');$('pvSubj').value=a;$('pvBody').value=c;$('mailPreview').style.display='block';}
+async function enviarPorFlujo(a,c){const url=($('pwaUrl').value||(state.alertas&&state.alertas.webhook_url)||'').trim();if(!url)return false;try{await fetch(url,{method:'POST',mode:'no-cors',body:JSON.stringify({asunto:a,cuerpo:c,destinatarios:destinatarios.join(';')})});return true;}catch(e){return false;}}
+async function enviarPrueba(){if(!destinatarios.length){setAlMsg('Agrega un correo.','err');return;}const a='[Prueba] Alertas de precios — CDA / Survial',c='Correo de prueba. Si lo recibes, las alertas quedan activas.';const f=await enviarPorFlujo(a,c);prepararCorreo(a,c);setAlMsg(f?'Solicitud enviada al flujo; revisa tu bandeja o copia abajo.':'Copia el correo de abajo y pégalo en Outlook.','ok');}
+async function enviarResumen(){if(!destinatarios.length){setAlMsg('Agrega un correo.','err');return;}const a=`Precios de lista al ${fmtDate(state.meta.fecha_datos)} — CDA / Survial`,c=resumenPrecios();const f=await enviarPorFlujo(a,c);prepararCorreo(a,c);setAlMsg(f?'Resumen enviado al flujo; o cópialo abajo.':'Copia el resumen de abajo.','ok');}
+async function guardarAl(){const url=($('pwaUrl').value||'').trim();state.alertas=state.alertas||{};state.alertas.destinatarios=destinatarios.slice();if(url)state.alertas.webhook_url=url;
+  try{const r=await fetch('./guardar-alertas',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({destinatarios,webhook_url:url})});if(r.ok){setAlMsg('Guardado para alertas automáticas ✓','ok');toast('Configuración guardada');return;}}catch(e){}
+  setAlMsg('Guardado en esta sesión. Para alertas automáticas, cárgalo en el pipeline.','ok');}
+$('btnAlertas').addEventListener('click',openAlertas);
+$('btnCloseAl').addEventListener('click',()=>drawerAl.classList.remove('open'));
+drawerAl.addEventListener('click',e=>{if(e.target===drawerAl)drawerAl.classList.remove('open');});
+$('btnAddEmail').addEventListener('click',()=>{const e=$('emailInput').value.trim();if(!validEmail(e)){setAlMsg('Correo no válido.','err');return;}if(!destinatarios.includes(e))destinatarios.push(e);$('emailInput').value='';renderChips();setAlMsg('');});
+$('emailInput').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();$('btnAddEmail').click();}});
+$('btnEnviarPrueba').addEventListener('click',enviarPrueba);
+$('btnEnviarResumen').addEventListener('click',enviarResumen);
+$('btnGuardarAl').addEventListener('click',guardarAl);
+$('btnCopiarTodo').addEventListener('click',()=>{const t=`Para: ${destinatarios.join(', ')}\nAsunto: ${correoActual.asunto}\n\n${correoActual.cuerpo}`;setAlMsg(copiar(t)?'Copiado ✓':'Selecciónalo manualmente.','ok');});
+document.querySelectorAll('#mailPreview [data-copy]').forEach(b=>b.addEventListener('click',()=>setAlMsg(copiar($(b.dataset.copy).value)?'Copiado ✓':'Selecciónalo.','ok')));
+$('btnPrint').addEventListener('click',()=>window.print());
+$('fechaDatos').addEventListener('change',e=>{state.meta.fecha_datos=e.target.value;$('subFecha').textContent='datos al '+fmtDate(state.meta.fecha_datos);});
+
+/* ===================== SYNC data.json ===================== */
+function setSync(t,ok){const s=$('syncStatus'),b=$('syncBox');if(s)s.textContent=t;if(b)b.classList.toggle('ok',!!ok);}
+let firstSync=true;
+async function loadExternalData(){
+  try{const res=await fetch('./data.json',{cache:'no-store'});if(!res.ok)throw 0;const obj=await res.json();
+    obj.proyeccion=obj.proyeccion||state.proyeccion; obj.alertas=obj.alertas||state.alertas;
+    state=obj; if(state.alertas&&state.alertas.destinatarios)destinatarios=state.alertas.destinatarios.slice();
+    renderAll(); const n=new Date().toLocaleTimeString('es-PE',{hour:'2-digit',minute:'2-digit'});
+    setSync(`Sincronizado ${n} · 7/13/19`,true); if(!firstSync)toast('Datos actualizados'); firstSync=false;
+  }catch(e){ setSync('Datos embebidos',false); }
+}
+async function refrescar(){const b=$('btnRefrescar');b.disabled=true;const o=b.textContent;b.textContent='Actualizando…';setSync('Actualizando…',false);
+  try{await fetch('./actualizar',{method:'POST'});}catch(e){} await loadExternalData(); b.disabled=false;b.textContent=o;}
+$('btnRefrescar').addEventListener('click',refrescar);
+
+/* ===================== INIT ===================== */
+renderAll();
+loadExternalData();
+setInterval(loadExternalData, 15*60*1000);
+</script>
+</body>
+</html>
