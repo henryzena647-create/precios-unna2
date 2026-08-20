@@ -1,0 +1,231 @@
+{
+  "meta": {
+    "fecha_datos": "2026-08-20",
+    "generado": "2026-08-20T20:47"
+  },
+  "combustible": {
+    "unidad": "S/ galón · con impuestos (sin FISE ni descuentos) · uso interno S-50",
+    "petroperu": {
+      "lista": "COMB",
+      "vigente_desde": "2025-01-30",
+      "plantas": []
+    },
+    "repsol": {
+      "lista": "PrecioLima (La Pampilla)",
+      "vigente_desde": "2026-08-20",
+      "nota": "Reporte oficial Repsol/RELAPASAA · Lima. Precio de lista con IGV (no incluye recargo FISE).",
+      "plantas": [
+        {
+          "planta": "La Pampilla (Callao)",
+          "abastece": "Ancón (Lima)",
+          "diesel_uv": 1.0,
+          "diesel_s50": 1.0,
+          "gasohol_reg": 1.0,
+          "gasohol_prem": 1.0,
+          "glp_kg": 1.0
+        }
+      ]
+    }
+  },
+  "asfalto": {
+    "unidad": "S/ galón + IGV · ex-planta",
+    "igv": 0.18,
+    "petroperu": {
+      "lista": "ASFA",
+      "vigente_desde": "2025-01-30",
+      "plantas": "Talara / Conchán",
+      "items": [
+        {
+          "familia": "Cemento asfáltico",
+          "grado": "PEN 40/50 a 120/150",
+          "precio": null
+        },
+        {
+          "familia": "Cemento asfáltico",
+          "grado": "PEN 20/30",
+          "precio": null
+        },
+        {
+          "familia": "Cemento asfáltico",
+          "grado": "PEN 10/20",
+          "precio": 13.52
+        },
+        {
+          "familia": "Asfalto líquido",
+          "grado": "RC-70 / RC-250",
+          "precio": null
+        },
+        {
+          "familia": "Asfalto líquido",
+          "grado": "MC-30 / MC-70",
+          "precio": 26.89
+        }
+      ],
+      "banda": {
+        "min": 13.52,
+        "max": 26.89
+      }
+    },
+    "repsol": {
+      "lista": "Recosac (público)",
+      "vigente_desde": "2008-12-16",
+      "nota": "Repsol/RECOSAC · Terminal La Pampilla (Callao). Precios sin IGV.",
+      "items": [
+        {
+          "familia": "Cemento asfáltico",
+          "grado": "CA 60/70",
+          "precio": 17.1
+        },
+        {
+          "familia": "Cemento asfáltico",
+          "grado": "CA 85/100",
+          "precio": 17.1
+        },
+        {
+          "familia": "Cemento asfáltico",
+          "grado": "CA 120/150",
+          "precio": 17.1
+        }
+      ]
+    }
+  },
+  "timeline": {
+    "unidad": "S/ galón",
+    "series": [
+      {
+        "clave": "diesel_talara",
+        "etiqueta": "Diésel B5 UV S-50 · Petroperú (Talara)",
+        "color": "#E9A020",
+        "fuente": {
+          "tipo": "comb_planta",
+          "planta": "Talara",
+          "campo": "diesel_uv"
+        },
+        "puntos": []
+      },
+      {
+        "clave": "diesel_repsol",
+        "etiqueta": "Diésel B5 S-50 · Repsol (La Pampilla)",
+        "color": "#C77D3A",
+        "fuente": {
+          "tipo": "none"
+        },
+        "puntos": [
+          {
+            "fecha": "2026-08-20",
+            "valor": 1.0
+          }
+        ]
+      },
+      {
+        "clave": "asfalto_min",
+        "etiqueta": "Cemento asfáltico · Petroperú (mín. lista)",
+        "color": "#5B7288",
+        "fuente": {
+          "tipo": "asfalto_banda",
+          "campo": "min"
+        },
+        "puntos": [
+          {
+            "fecha": "2025-01-30",
+            "valor": 13.52
+          }
+        ]
+      },
+      {
+        "clave": "asfalto_repsol",
+        "etiqueta": "Cemento asfáltico · Repsol (CA 60/70)",
+        "color": "#3E8E7E",
+        "fuente": {
+          "tipo": "asfalto_repsol_item",
+          "grado": "CA 60/70",
+          "campo": "precio"
+        },
+        "puntos": [
+          {
+            "fecha": "2008-12-16",
+            "valor": 17.1
+          }
+        ]
+      }
+    ]
+  },
+  "proyeccion": {
+    "meses": [
+      "Ago",
+      "Set",
+      "Oct",
+      "Nov",
+      "Dic",
+      "Ene 27",
+      "Feb 27"
+    ],
+    "base": [
+      88,
+      85,
+      82,
+      78,
+      76,
+      74,
+      72
+    ],
+    "alza": [
+      90,
+      98,
+      104,
+      106,
+      103,
+      99,
+      95
+    ],
+    "baja": [
+      86,
+      80,
+      75,
+      71,
+      68,
+      66,
+      64
+    ],
+    "umbral_alza": 95,
+    "umbral_base": 75,
+    "esc_ref": {
+      "base": 78,
+      "alza": 106,
+      "baja": 70
+    },
+    "brent_spot": 95.29,
+    "brent_fecha": "2026-08-18"
+  },
+  "alertas": {
+    "destinatarios": [],
+    "webhook_url": ""
+  },
+  "fuentes": [
+    {
+      "t": "Combustible — Petroperú",
+      "d": "Lista de precios en plantas (Automotriz).",
+      "f": "3×/día"
+    },
+    {
+      "t": "Asfalto — Petroperú",
+      "d": "Lista de precios en plantas (Asfaltos).",
+      "f": "3×/día"
+    },
+    {
+      "t": "Asfalto — Repsol",
+      "d": "Lista pública de asfaltos (La Pampilla).",
+      "f": "3×/día"
+    },
+    {
+      "t": "Combustible — Repsol",
+      "d": "Reporte PrecioLima (RELAPASAA).",
+      "f": "3×/día"
+    },
+    {
+      "t": "Brent — EIA",
+      "d": "Europe Brent Spot (RBRTE), API oficial EIA.",
+      "f": "3×/día"
+    }
+  ]
+}

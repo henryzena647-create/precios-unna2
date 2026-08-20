@@ -1,0 +1,21 @@
+{
+  "diesel_talara": [],
+  "asfalto_min": [
+    {
+      "fecha": "2025-01-30",
+      "valor": 13.52
+    }
+  ],
+  "asfalto_repsol": [
+    {
+      "fecha": "2008-12-16",
+      "valor": 17.1
+    }
+  ],
+  "diesel_repsol": [
+    {
+      "fecha": "2026-08-20",
+      "valor": 1.0
+    }
+  ]
+}
