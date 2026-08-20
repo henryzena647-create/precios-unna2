@@ -66,7 +66,7 @@ HEADERS = {"User-Agent": "Mozilla/5.0 (compatible; UNNA-PriceBot/1.0)"}
 # Configura estas variables en el sistema o en GitHub Secrets. Si faltan, no se envía correo
 # (pero igual se registra el cambio en alertas.log). NUNCA escribas la contraseña aquí.
 SMTP_HOST = os.environ.get("SMTP_HOST", "")
-SMTP_PORT = int(os.environ.get("SMTP_PORT", "587"))
+SMTP_PORT = int(os.environ.get("SMTP_PORT") or 587))
 SMTP_USER = os.environ.get("SMTP_USER", "")
 SMTP_PASS = os.environ.get("SMTP_PASS", "")
 ALERTA_FROM = os.environ.get("ALERTA_EMAIL_FROM", SMTP_USER)
