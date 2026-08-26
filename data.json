@@ -1,7 +1,7 @@
 {
   "meta": {
-    "fecha_datos": "2026-08-25",
-    "generado": "2026-08-25T19:46"
+    "fecha_datos": "2026-08-26",
+    "generado": "2026-08-26T03:36"
   },
   "combustible": {
     "unidad": "S/ galón · con impuestos (sin FISE ni descuentos) · uso interno S-50",
@@ -133,6 +133,10 @@
           },
           {
             "fecha": "2026-08-25",
+            "valor": 1.0
+          },
+          {
+            "fecha": "2026-08-26",
             "valor": 1.0
           }
         ]
