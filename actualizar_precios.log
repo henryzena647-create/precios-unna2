@@ -248,3 +248,12 @@
 2026-09-04T18:11:22  [BRENT] EIA RBRTE = 96.02 (2026-09-01)
 2026-09-04T18:11:22  OK -> /home/runner/work/precios-unna2/precios-unna2/data.json  (fecha_datos=2026-09-04)
 2026-09-04T18:11:22  Sin cambios de precio respecto a la corrida anterior.
+2026-09-05T00:14:27  Petroperú combustible: https://www.petroperu.com.pe/Docs/spa/files/transparencia/informe-anual-transparencia-2025.pdf
+2026-09-05T00:14:31  Petroperú asfalto: https://www.petroperu.com.pe/Docs/spa/files/transparencia/informe-anual-transparencia-2025.pdf
+2026-09-05T00:14:50  Repsol asfalto: https://www.repsol.pe/content/dam/repsol-paises/pe/asfaltos/Precio-de-Lista-Asfaltos-Recosac-050926.pdf
+2026-09-05T00:15:03  [BRENT] EIA RBRTE = 96.02 (2026-09-01)
+2026-09-05T00:15:03  OK -> /home/runner/work/precios-unna2/precios-unna2/data.json  (fecha_datos=2026-09-05)
+2026-09-05T00:15:03  Cambios detectados:
+[2026-09-05T00:15]
+  ALZA ▲  Cemento asfáltico · Repsol (CA 60/70): S/ 16.2900 -> S/ 16.4400 (+0.1500)
+2026-09-05T00:15:03  [ALERTA] Sin Power Automate ni SMTP configurados: cambio registrado, sin correo.
