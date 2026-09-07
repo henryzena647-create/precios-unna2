@@ -287,3 +287,9 @@
 2026-09-06T18:11:03  [BRENT] EIA RBRTE = 96.02 (2026-09-01)
 2026-09-06T18:11:03  OK -> /home/runner/work/precios-unna2/precios-unna2/data.json  (fecha_datos=2026-09-06)
 2026-09-06T18:11:03  Sin cambios de precio respecto a la corrida anterior.
+2026-09-07T00:15:11  Petroperú combustible: https://www.petroperu.com.pe/Docs/spa/files/transparencia/informe-anual-transparencia-2025.pdf
+2026-09-07T00:15:17  Petroperú asfalto: https://www.petroperu.com.pe/Docs/spa/files/transparencia/informe-anual-transparencia-2025.pdf
+2026-09-07T00:15:33  Repsol asfalto: https://www.repsol.pe/content/dam/repsol-paises/pe/asfaltos/Precio-de-Lista-Asfaltos-Recosac-050926.pdf
+2026-09-07T00:15:47  [BRENT] EIA RBRTE = 96.02 (2026-09-01)
+2026-09-07T00:15:47  OK -> /home/runner/work/precios-unna2/precios-unna2/data.json  (fecha_datos=2026-09-07)
+2026-09-07T00:15:47  Sin cambios de precio respecto a la corrida anterior.
