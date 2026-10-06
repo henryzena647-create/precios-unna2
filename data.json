@@ -1,7 +1,7 @@
 {
   "meta": {
     "fecha_datos": "2026-10-06",
-    "generado": "2026-10-06T04:47"
+    "generado": "2026-10-06T17:54"
   },
   "combustible": {
     "unidad": "S/ galón · con impuestos (sin FISE ni descuentos) · uso interno S-50",
@@ -12,7 +12,7 @@
     },
     "repsol": {
       "lista": "PrecioLima (La Pampilla)",
-      "vigente_desde": "2026-09-29",
+      "vigente_desde": "2026-10-06",
       "nota": "Reporte oficial Repsol/RELAPASAA · Lima. Precio de lista con IGV (no incluye recargo FISE).",
       "plantas": [
         {
