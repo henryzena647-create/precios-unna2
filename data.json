@@ -1,7 +1,7 @@
 {
   "meta": {
     "fecha_datos": "2026-10-09",
-    "generado": "2026-10-09T17:57"
+    "generado": "2026-10-09T22:22"
   },
   "combustible": {
     "unidad": "S/ galón · con impuestos (sin FISE ni descuentos) · uso interno S-50",
@@ -68,23 +68,23 @@
     },
     "repsol": {
       "lista": "Recosac (público)",
-      "vigente_desde": "2026-09-11",
+      "vigente_desde": "2026-10-10",
       "nota": "Repsol/RECOSAC · Terminal La Pampilla (Callao). Precios sin IGV.",
       "items": [
         {
           "familia": "Cemento asfáltico",
           "grado": "CA 60/70",
-          "precio": 16.64
+          "precio": 17.14
         },
         {
           "familia": "Cemento asfáltico",
           "grado": "CA 85/100",
-          "precio": 16.64
+          "precio": 17.14
         },
         {
           "familia": "Cemento asfáltico",
           "grado": "CA 120/150",
-          "precio": 16.64
+          "precio": 17.14
         }
       ]
     }
@@ -353,6 +353,10 @@
           {
             "fecha": "2026-09-11",
             "valor": 16.64
+          },
+          {
+            "fecha": "2026-10-10",
+            "valor": 17.14
           }
         ]
       }
