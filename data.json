@@ -1,7 +1,7 @@
 {
   "meta": {
     "fecha_datos": "2026-11-04",
-    "generado": "2026-11-04T04:46"
+    "generado": "2026-11-04T19:20"
   },
   "combustible": {
     "unidad": "S/ galón · con impuestos (sin FISE ni descuentos) · uso interno S-50",
@@ -510,8 +510,8 @@
       "alza": 106,
       "baja": 70
     },
-    "brent_spot": 123.1,
-    "brent_fecha": "2026-10-27"
+    "brent_spot": 107.03,
+    "brent_fecha": "2026-11-03"
   },
   "alertas": {
     "destinatarios": [],
