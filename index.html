@@ -142,8 +142,7 @@
 
 <div class="tabs"><div class="inner">
   <button class="tabbtn active" data-tab="precios">Precios de lista</button>
-  <button class="tabbtn" data-tab="tendencia">Tendencia</button>
-  <button class="tabbtn" data-tab="proyeccion">Proyección 6 meses</button>
+  <button class="tabbtn" data-tab="tendencia">Tendencia y proyección</button>
 </div></div>
 
 <div class="wrap">
@@ -165,29 +164,21 @@
     </section>
   </div>
 
-  <!-- TAB TENDENCIA -->
+  <!-- TAB TENDENCIA (+ PROYECCION) -->
   <div class="tab" id="tab-tendencia">
     <section>
       <div class="sec-head"><span class="num">03</span><h2>Tendencia de precios de lista</h2><span class="meta">Se extiende con cada actualización</span></div>
       <div class="chart-card"><div class="legend" id="tl-legend"></div><div id="tl-chart"></div></div>
     </section>
-  </div>
-
-  <!-- TAB PROYECCION -->
-  <div class="tab" id="tab-proyeccion">
-    <div class="kpis" id="proy-kpis"></div>
     <section>
-      <div class="sec-head"><span class="num">04</span><h2>Proyección del Brent — 6 meses (mensual)</h2></div>
-      <p class="note" style="font-size:13px">Una sola línea: el <b>Brent real</b> (trazo continuo, cierre mensual EIA · serie RBRTE) y su <b>proyección a 6 meses</b> (trazo punteado), anclada al último dato real y recalibrada con cada actualización según el STEO de la EIA y los factores de riesgo.</p>
+      <div class="sec-head"><span class="num">04</span><h2>Proyección del Brent — 6 meses</h2></div>
+      <p class="note" style="font-size:13px">Una sola línea: el <b>Brent real</b> (trazo continuo, cierre mensual EIA · serie RBRTE) y su <b>proyección a 6 meses</b> (trazo punteado), anclada al último dato real y recalibrada con cada actualización según el STEO de la EIA y los factores de riesgo. Es el crudo de referencia que mueve el diésel y el asfalto de arriba.</p>
+      <div class="kpis" id="proy-kpis" style="margin-bottom:14px"></div>
       <div class="chart-card"><div class="legend" id="proy-legend"></div><div id="proy-chart"></div></div>
     </section>
     <section>
       <div class="sec-head"><span class="num">05</span><h2>Factores que mueven el precio</h2></div>
       <ul class="factores" id="factores"></ul>
-    </section>
-    <section>
-      <div class="sec-head"><span class="num">06</span><h2>Qué dice cada institución</h2></div>
-      <table id="tblInst"></table>
       <div class="note">Fuentes: EIA STEO (nov-2026), IEA OMR, OPEP MOMR y bancos de inversión vía prensa financiera. Brent real: EIA Open Data (serie RBRTE), actualizado automáticamente.</div>
     </section>
   </div>
@@ -460,8 +451,6 @@ function renderProyeccion(){
   brentChart($('proy-chart'), hist, proj);
   const fac=[["Política OPEP+","El desmonte gradual de recortes añade barriles al mercado: principal presión a la baja hacia 2027."],["Oferta no-OPEP récord","Producción de EE.UU. en máximos (~13.8 mb/d): colchón bajista estructural."],["Superávit proyectado 2026","EIA e IEA anticipan acumulación de inventarios, consistente con precios más bajos."],["Demanda Asia/China","Recuperación moderada de la demanda; sostiene el precio sin revertir la tendencia."],["Riesgo geopolítico","Tensiones en Medio Oriente y el Estrecho de Ormuz mantienen una prima de riesgo alcista latente."],["Decisiones de la Fed / dólar","Un dólar más débil tiende a sostener el crudo; recortes de tasa son factor alcista moderado."],["Inventarios OCDE","Niveles aún ajustados limitan caídas bruscas pese al superávit esperado."],["Mantenimiento y fletes","Paradas de refinería y costos de flete afectan el precio local por encima del Brent."]];
   $('factores').innerHTML=fac.map(f=>`<li><b>${f[0]}</b>${f[1]}</li>`).join("");
-  const inst=[["EIA — STEO (nov-2026)","Brent ~US$100 a fin de 2026; promedio 2027 ~US$86 (bajo US$90 en 2T27).","Referencia central"],["IEA — OMR","Superávit de oferta hacia 2026–2027; inventarios en aumento.","Sesgo bajista"],["OPEP — MOMR","Demanda sostenida por Asia; defiende precios con su política de cuotas.","Constructivo demanda"],["Goldman Sachs","Escenario de riesgo alcista ante shock de oferta (Ormuz).","Alcista ante shock"],["J.P. Morgan","Superávit estructural presiona a la baja el promedio.","Bajista / superávit"]];
-  $('tblInst').innerHTML=`<thead><tr><th>Fuente</th><th>Visión</th><th>Sesgo</th></tr></thead><tbody>`+inst.map(r=>`<tr><td><b>${r[0]}</b></td><td style="font-size:12px">${r[1]}</td><td style="font-size:12px">${r[2]}</td></tr>`).join("")+`</tbody>`;
 }
 
 /* ===================== RENDER GLOBAL ===================== */
