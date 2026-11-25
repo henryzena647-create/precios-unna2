@@ -5131,3 +5131,10 @@ TURBO A-1 | 7.08 |  |  | 7.0800 | 18% | GAL | USD | 8.35440
 2026-11-25T18:19:59  [BRENT] EIA RBRTE = 92.94 (2026-11-17)
 2026-11-25T18:19:59  OK -> /home/runner/work/precios-unna2/precios-unna2/data.json  (fecha_datos=2026-11-25)
 2026-11-25T18:19:59  Sin cambios de precio respecto a la corrida anterior.
+2026-11-25T18:23:23  Petroperú combustible: https://www.petroperu.com.pe/Storage/tbl_listas_de_precio/fld_1177_Archivo_file/1750-d1Tu5Jm6Cq0Xg0B.pdf
+2026-11-25T18:23:26  Petroperú asfalto: https://www.petroperu.com.pe/Storage/tbl_listas_de_precio/fld_1177_Archivo_file/1737-j1Vg2Wk1Xg7Bo4H.pdf
+2026-11-25T18:23:39  Repsol asfalto: https://www.repsol.pe/content/dam/repsol-paises/pe/asfaltos/Precio%20de%20Lista%20Asfaltos-%20Recosac%20101026.pdf
+2026-11-25T18:23:52  Repsol combustible: diesel_uv=8.3544 gasohol_reg=8.3544 glp=2.4072
+2026-11-25T18:23:52  [BRENT] EIA RBRTE = 92.94 (2026-11-17)
+2026-11-25T18:23:52  OK -> /home/runner/work/precios-unna2/precios-unna2/data.json  (fecha_datos=2026-11-25)
+2026-11-25T18:23:52  Sin cambios de precio respecto a la corrida anterior.
