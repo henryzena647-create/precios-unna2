@@ -531,20 +531,29 @@ def _meses_adelante(n):
     return out
 
 
-def _eia_rbrte(key, frequency, length):
+def _eia_rbrte(key, frequency, length, timeout=60, intentos=3):
     """Consulta la serie RBRTE (Europe Brent Spot) a la API v2 de la EIA.
-    Devuelve filas [{period, value}] ordenadas de más reciente a más antigua."""
-    r = requests.get(
-        "https://api.eia.gov/v2/petroleum/pri/spt/data/",
-        params={
-            "api_key": key, "frequency": frequency, "data[0]": "value",
-            "facets[series][]": "RBRTE",
-            "sort[0][column]": "period", "sort[0][direction]": "desc",
-            "offset": 0, "length": length,
-        }, timeout=30)
-    r.raise_for_status()
-    return [row for row in r.json().get("response", {}).get("data", [])
-            if row.get("value") is not None]
+    Devuelve filas [{period, value}] ordenadas de más reciente a más antigua.
+    Reintenta ante timeouts transitorios."""
+    ultimo = None
+    for i in range(intentos):
+        try:
+            r = requests.get(
+                "https://api.eia.gov/v2/petroleum/pri/spt/data/",
+                params={
+                    "api_key": key, "frequency": frequency, "data[0]": "value",
+                    "facets[series][]": "RBRTE",
+                    "sort[0][column]": "period", "sort[0][direction]": "desc",
+                    "offset": 0, "length": length,
+                }, timeout=timeout)
+            r.raise_for_status()
+            return [row for row in r.json().get("response", {}).get("data", [])
+                    if row.get("value") is not None]
+        except Exception as e:
+            ultimo = e
+            if i < intentos - 1:
+                import time; time.sleep(3 * (i + 1))
+    raise ultimo
 
 
 def scrape_brent(prev):
