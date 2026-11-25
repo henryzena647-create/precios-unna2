@@ -412,42 +412,35 @@ def scrape_repsol_fuel():
     rows, text = _repsol_report_extract(REPSOL_FUEL_REPORT, timeout=70000)
     if not rows and not re.search(r"DIESEL|GASOHOL", text.upper()):
         raise RuntimeError("El reporte PrecioLima no expuso la tabla (revisar render/timeout)")
-    # Nombres reales del reporte (captura 11/08/2026):
+    # Método robusto: en este reporte la columna PRECIO DE LISTA siempre tiene 5
+    # decimales (p.ej. 21.67660, 16.34583), mientras las demás columnas tienen 2-4.
+    # Por cada producto tomamos el primer número de 5 decimales que aparece tras su
+    # nombre, sobre todo el texto junto. Así no importa cómo se partan las celdas.
     patrones = {
-        "diesel_uv":    r"DIESEL\s*B5[\s\-]*S?-?50\s*UV",          # DIESEL B5-S50 UV
-        "diesel_s50":   r"DIESEL\s*B5\s*\(?S-?50\)?(?!.*UV)",      # DIESEL B5 (S-50)
+        "diesel_uv":    r"DIESEL\s*B5[\s\-]*S-?50\s*UV",     # DIESEL B5-S50 UV
+        "diesel_s50":   r"DIESEL\s*B5\s*\(S-?50\)",          # DIESEL B5 (S-50)
         "gasohol_prem": r"GASOHOL\s*PREMIUM",
         "gasohol_reg":  r"GASOHOL\s*REGULAR",
-        "glp_kg":       r"\bGLP\b",
+        "glp_kg":       r"GLP\s*GRANEL",
     }
     fila = {"planta": "La Pampilla (Callao)", "abastece": "Ancón (Lima)",
             "diesel_uv": None, "diesel_s50": None, "gasohol_reg": None,
             "gasohol_prem": None, "glp_kg": None}
+
     def _plausible(campo, val):
-        """Descarta valores basura (p.ej. 1.00 de una columna de factor/IGV)."""
         if val is None:
             return None
         if campo == "glp_kg":
-            return val if 1.2 <= val <= 8 else None        # S/kg
-        return val if 8 <= val <= 45 else None             # S/galón (diésel/gasohol)
+            return val if 1.2 <= val <= 8 else None         # S/kg
+        return val if 10 <= val <= 45 else None             # S/galón (diésel/gasohol)
 
-    for cells in rows:
-        # el nombre del producto debe estar en la PRIMERA celda no vacía de la fila
-        # (así se ignora la "mega-fila" con todo el texto junto, que terminaba en el Turbo A-1)
-        etiqueta = next((c for c in cells if c.strip()), "").upper()
-        for campo, pat in patrones.items():
-            if fila[campo] is None and re.search(pat, etiqueta):
-                fila[campo] = _plausible(campo, _last_number(cells))
-    # respaldo por texto plano si la lectura por celdas no encontró nada
-    if all(v is None for k, v in fila.items() if k not in ("planta", "abastece")):
-        for line in text.splitlines():
-            up = line.upper()
-            for campo, pat in patrones.items():
-                if fila[campo] is None and re.search(pat, up):
-                    v = nums(line)
-                    if v:
-                        fila[campo] = _plausible(campo, v[-1])
-    log(f"Repsol combustible: diesel_uv={fila['diesel_uv']} gasohol_reg={fila['gasohol_reg']} glp={fila['glp_kg']}")
+    blob = " ".join(" ".join(c for c in r) for r in rows) + " " + (text or "")
+    blob = re.sub(r"\s+", " ", blob).upper()
+    for campo, pat in patrones.items():
+        m = re.search(pat + r".{0,70}?(\d+\.\d{5})", blob)   # 1er precio de 5 decimales
+        if m:
+            fila[campo] = _plausible(campo, float(m.group(1)))
+    log(f"Repsol combustible: diesel_uv={fila['diesel_uv']} gasohol_reg={fila['gasohol_reg']} prem={fila['gasohol_prem']} glp={fila['glp_kg']}")
     # vigencia del propio reporte ("Vigencia: 4/08/2026")
     mv = re.search(r"VIGENCIA[:\s]*(\d{1,2})[/.](\d{1,2})[/.](\d{4})", text.upper())
     vig = f"{mv.group(3)}-{int(mv.group(2)):02d}-{int(mv.group(1)):02d}" if mv else _today()
