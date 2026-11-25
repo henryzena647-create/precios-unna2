@@ -1,7 +1,7 @@
 {
   "meta": {
     "fecha_datos": "2026-11-25",
-    "generado": "2026-11-25T20:13"
+    "generado": "2026-11-25T20:57"
   },
   "combustible": {
     "unidad": "S/ galón · con impuestos (sin FISE ni descuentos) · uso interno S-50",
@@ -490,14 +490,8 @@
       88,
       86
     ],
-    "passthrough": 0.5,
-    "umbral_alza": 100,
-    "umbral_base": 85,
-    "esc_ref": {
-      "base": 90,
-      "alza": 105,
-      "baja": 80
-    },
+    "elas_diesel": 0.55,
+    "elas_asf": 0.35,
     "brent_spot": 91.8,
     "brent_fecha": "2026-11-24",
     "brent_hist": [
@@ -595,19 +589,49 @@
       },
       {
         "fecha": "2027-01-15",
-        "valor": 19.12
+        "valor": 19.87
       },
       {
         "fecha": "2027-02-15",
-        "valor": 18.14
+        "valor": 19.63
       },
       {
         "fecha": "2027-03-15",
-        "valor": 17.66
+        "valor": 19.52
       },
       {
         "fecha": "2027-04-15",
-        "valor": 17.17
+        "valor": 19.4
+      },
+      {
+        "fecha": "2027-05-15",
+        "valor": 19.28
+      }
+    ],
+    "asfalto_proj": [
+      {
+        "fecha": "2026-10-13",
+        "valor": 17.14
+      },
+      {
+        "fecha": "2026-12-15",
+        "valor": 17.14
+      },
+      {
+        "fecha": "2027-01-15",
+        "valor": 17.01
+      },
+      {
+        "fecha": "2027-02-15",
+        "valor": 16.88
+      },
+      {
+        "fecha": "2027-03-15",
+        "valor": 16.82
+      },
+      {
+        "fecha": "2027-04-15",
+        "valor": 16.76
       },
       {
         "fecha": "2027-05-15",
