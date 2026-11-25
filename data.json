@@ -1,66 +1,66 @@
 {
   "meta": {
     "fecha_datos": "2026-11-25",
-    "generado": "2026-11-25T18:12"
+    "generado": "2026-11-25T18:17"
   },
   "combustible": {
     "unidad": "S/ galón · con impuestos (sin FISE ni descuentos) · uso interno S-50",
     "petroperu": {
       "lista": "COMB-84-2026",
-      "vigente_desde": "2016-01-11",
+      "vigente_desde": "2026-11-25",
       "plantas": [
         {
           "planta": "Talara",
           "abastece": "Ruta norte / Canchaque",
-          "diesel_uv": 3.6462,
-          "diesel_s50": 16.3293,
-          "gasohol_prem": 14.6051,
-          "gasohol_reg": 17.8364,
-          "glp_kg": null
+          "diesel_uv": 19.175,
+          "diesel_s50": 20.7444,
+          "gasohol_prem": 17.2379,
+          "gasohol_reg": 14.6226,
+          "glp_kg": 3.6462
         },
         {
           "planta": "Piura",
           "abastece": "Canchaque",
-          "diesel_uv": 16.6224,
-          "diesel_s50": 14.809,
-          "gasohol_prem": 18.0658,
-          "gasohol_reg": null,
+          "diesel_uv": 19.3756,
+          "diesel_s50": 20.945,
+          "gasohol_prem": 17.4418,
+          "gasohol_reg": 14.7373,
           "glp_kg": null
         },
         {
           "planta": "Callao",
           "abastece": "Ancón (Lima)",
-          "diesel_uv": 2.95,
-          "diesel_s50": 15.3353,
-          "gasohol_prem": 14.8217,
-          "gasohol_reg": 17.9256,
-          "glp_kg": null
+          "diesel_uv": 20.1072,
+          "diesel_s50": 21.6766,
+          "gasohol_prem": 16.3458,
+          "gasohol_reg": 15.6293,
+          "glp_kg": 2.95
         },
         {
           "planta": "Conchan",
           "abastece": "Ancón (Lima)",
-          "diesel_uv": 15.3353,
-          "diesel_s50": 14.8217,
-          "gasohol_prem": 17.9129,
-          "gasohol_reg": 17.1926,
+          "diesel_uv": 20.1072,
+          "diesel_s50": 21.6766,
+          "gasohol_prem": 16.3458,
+          "gasohol_reg": 15.6293,
           "glp_kg": null
         },
         {
           "planta": "Pisco",
           "abastece": "Ruta a Puquio",
-          "diesel_uv": 15.3608,
-          "diesel_s50": 15.0894,
-          "gasohol_prem": 18.3334,
-          "gasohol_reg": 16.3135,
+          "diesel_uv": 19.9774,
+          "diesel_s50": 21.5468,
+          "gasohol_prem": 16.5625,
+          "gasohol_reg": 15.8332,
           "glp_kg": null
         },
         {
           "planta": "Mollendo",
           "abastece": "Sur / Abancay–Puquio",
-          "diesel_uv": 15.9852,
-          "diesel_s50": 15.3442,
-          "gasohol_prem": 18.3717,
-          "gasohol_reg": 16.5377,
+          "diesel_uv": 23.01,
+          "diesel_s50": 24.5794,
+          "gasohol_prem": 16.6007,
+          "gasohol_reg": 15.8715,
           "glp_kg": null
         },
         {
@@ -102,32 +102,32 @@
         {
           "familia": "Cemento asfáltico",
           "grado": "PEN 40/50 a 120/150",
-          "precio": null
+          "precio": 17.14
         },
         {
           "familia": "Cemento asfáltico",
           "grado": "PEN 20/30",
-          "precio": null
+          "precio": 17.43
         },
         {
           "familia": "Cemento asfáltico",
           "grado": "PEN 10/20",
-          "precio": 15.35
+          "precio": 17.43
         },
         {
           "familia": "Asfalto líquido",
           "grado": "RC-70 / RC-250",
-          "precio": null
+          "precio": 15.35
         },
         {
           "familia": "Asfalto líquido",
           "grado": "MC-30 / MC-70",
-          "precio": 24.09
+          "precio": 16.88
         }
       ],
       "banda": {
         "min": 15.35,
-        "max": 24.09
+        "max": 17.49
       }
     },
     "repsol": {
@@ -169,6 +169,10 @@
           {
             "fecha": "2016-01-11",
             "valor": 3.6462
+          },
+          {
+            "fecha": "2026-11-25",
+            "valor": 19.175
           }
         ]
       },

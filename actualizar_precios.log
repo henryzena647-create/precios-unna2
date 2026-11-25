@@ -1723,3 +1723,13 @@ ANULA LISTA: ASFA-10-2026
 2026-11-25T18:12:10  [BRENT] EIA RBRTE = 92.94 (2026-11-17)
 2026-11-25T18:12:10  OK -> /home/runner/work/precios-unna2/precios-unna2/data.json  (fecha_datos=2026-11-25)
 2026-11-25T18:12:10  Sin cambios de precio respecto a la corrida anterior.
+2026-11-25T18:16:53  Petroperú combustible: https://www.petroperu.com.pe/Storage/tbl_listas_de_precio/fld_1177_Archivo_file/1750-d1Tu5Jm6Cq0Xg0B.pdf
+2026-11-25T18:17:00  Petroperú asfalto: https://www.petroperu.com.pe/Storage/tbl_listas_de_precio/fld_1177_Archivo_file/1737-j1Vg2Wk1Xg7Bo4H.pdf
+2026-11-25T18:17:16  Repsol asfalto: https://www.repsol.pe/content/dam/repsol-paises/pe/asfaltos/Precio%20de%20Lista%20Asfaltos-%20Recosac%20101026.pdf
+2026-11-25T18:17:29  Repsol combustible: diesel_uv=8.3544 gasohol_reg=8.3544 glp=2.4072
+2026-11-25T18:17:29  [BRENT] EIA RBRTE = 92.94 (2026-11-17)
+2026-11-25T18:17:29  OK -> /home/runner/work/precios-unna2/precios-unna2/data.json  (fecha_datos=2026-11-25)
+2026-11-25T18:17:29  Cambios detectados:
+[2026-11-25T18:17]
+  ALZA ▲  Diésel B5 UV S-50 · Petroperú (Talara): S/ 3.6462 -> S/ 19.1750 (+15.5288)
+2026-11-25T18:17:29  [ALERTA] Sin Power Automate ni SMTP configurados: cambio registrado, sin correo.
