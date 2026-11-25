@@ -1,7 +1,7 @@
 {
   "meta": {
     "fecha_datos": "2026-11-25",
-    "generado": "2026-11-25T19:05"
+    "generado": "2026-11-25T20:05"
   },
   "combustible": {
     "unidad": "S/ galón · con impuestos (sin FISE ni descuentos) · uso interno S-50",
@@ -157,26 +157,226 @@
     "unidad": "S/ galón",
     "series": [
       {
-        "clave": "diesel_talara",
-        "etiqueta": "Diésel B5 UV S-50 · Petroperú (Talara)",
+        "clave": "diesel_petroperu",
+        "etiqueta": "Diésel B5 UV S-50 · Petroperú (Callao)",
         "color": "#E9A020",
         "fuente": {
           "tipo": "comb_planta",
-          "planta": "Talara",
+          "planta": "Callao",
           "campo": "diesel_uv"
         },
         "puntos": [
           {
-            "fecha": "2026-08-04",
-            "valor": 23.66
+            "fecha": "2026-01-13",
+            "valor": 11.6584
+          },
+          {
+            "fecha": "2026-01-20",
+            "valor": 11.8118
+          },
+          {
+            "fecha": "2026-01-27",
+            "valor": 12.1068
+          },
+          {
+            "fecha": "2026-02-05",
+            "valor": 11.8708
+          },
+          {
+            "fecha": "2026-02-10",
+            "valor": 12.0006
+          },
+          {
+            "fecha": "2026-02-24",
+            "valor": 12.1422
+          },
+          {
+            "fecha": "2026-03-03",
+            "valor": 12.7322
+          },
+          {
+            "fecha": "2026-03-05",
+            "valor": 14.5258
+          },
+          {
+            "fecha": "2026-03-06",
+            "valor": 15.7058
+          },
+          {
+            "fecha": "2026-03-10",
+            "valor": 16.2604
+          },
+          {
+            "fecha": "2026-03-17",
+            "valor": 19.5998
+          },
+          {
+            "fecha": "2026-03-24",
+            "valor": 21.2754
+          },
+          {
+            "fecha": "2026-03-27",
+            "valor": 20.0954
+          },
+          {
+            "fecha": "2026-03-31",
+            "valor": 21.2518
+          },
+          {
+            "fecha": "2026-04-07",
+            "valor": 22.4082
+          },
+          {
+            "fecha": "2026-04-10",
+            "valor": 20.6382
+          },
+          {
+            "fecha": "2026-04-14",
+            "valor": 21.4052
+          },
+          {
+            "fecha": "2026-04-18",
+            "valor": 20.8152
+          },
+          {
+            "fecha": "2026-04-21",
+            "valor": 19.588
+          },
+          {
+            "fecha": "2026-04-25",
+            "valor": 21.6058
+          },
+          {
+            "fecha": "2026-04-28",
+            "valor": 18.7856
+          },
+          {
+            "fecha": "2026-05-05",
+            "valor": 20.0954
+          },
+          {
+            "fecha": "2026-05-07",
+            "valor": 20.6854
+          },
+          {
+            "fecha": "2026-05-12",
+            "valor": 20.6618
+          },
+          {
+            "fecha": "2026-05-19",
+            "valor": 19.9774
+          },
+          {
+            "fecha": "2026-05-22",
+            "valor": 19.1514
+          },
+          {
+            "fecha": "2026-05-26",
+            "valor": 18.3018
+          },
+          {
+            "fecha": "2026-06-02",
+            "valor": 17.6174
+          },
+          {
+            "fecha": "2026-06-05",
+            "valor": 18.0894
+          },
+          {
+            "fecha": "2026-06-09",
+            "valor": 17.7472
+          },
+          {
+            "fecha": "2026-06-12",
+            "valor": 18.3372
+          },
+          {
+            "fecha": "2026-06-23",
+            "valor": 17.346
+          },
+          {
+            "fecha": "2026-07-07",
+            "valor": 17.3106
+          },
+          {
+            "fecha": "2026-07-10",
+            "valor": 17.9006
+          },
+          {
+            "fecha": "2026-07-14",
+            "valor": 18.5614
+          },
+          {
+            "fecha": "2026-07-16",
+            "valor": 19.5054
+          },
+          {
+            "fecha": "2026-07-18",
+            "valor": 19.3756
+          },
+          {
+            "fecha": "2026-07-21",
+            "valor": 21.0158
+          },
+          {
+            "fecha": "2026-07-25",
+            "valor": 21.6058
+          },
+          {
+            "fecha": "2026-07-29",
+            "valor": 23.0572
+          },
+          {
+            "fecha": "2026-08-03",
+            "valor": 23.6354
           },
           {
             "fecha": "2026-08-11",
-            "valor": 23.12
+            "valor": 23.0926
+          },
+          {
+            "fecha": "2026-08-25",
+            "valor": 23.3758
+          },
+          {
+            "fecha": "2026-09-01",
+            "valor": 23.5056
+          },
+          {
+            "fecha": "2026-09-15",
+            "valor": 24.7918
+          },
+          {
+            "fecha": "2026-09-24",
+            "valor": 23.8478
+          },
+          {
+            "fecha": "2026-10-02",
+            "valor": 23.1516
+          },
+          {
+            "fecha": "2026-10-13",
+            "valor": 22.9038
+          },
+          {
+            "fecha": "2026-10-27",
+            "valor": 23.1752
+          },
+          {
+            "fecha": "2026-11-03",
+            "valor": 22.892
+          },
+          {
+            "fecha": "2026-11-06",
+            "valor": 22.302
+          },
+          {
+            "fecha": "2026-11-10",
+            "valor": 21.4642
           },
           {
             "fecha": "2026-11-25",
-            "valor": 19.175
+            "valor": 20.1072
           }
         ]
       },
@@ -185,7 +385,8 @@
         "etiqueta": "Diésel B5 S-50 · Repsol (La Pampilla)",
         "color": "#C77D3A",
         "fuente": {
-          "tipo": "none"
+          "tipo": "comb_repsol",
+          "campo": "diesel_uv"
         },
         "puntos": [
           {
@@ -195,27 +396,64 @@
         ]
       },
       {
-        "clave": "asfalto_min",
-        "etiqueta": "Cemento asfáltico · Petroperú (mín. lista)",
+        "clave": "asfalto_petroperu",
+        "etiqueta": "Cemento asfáltico PEN · Petroperú",
         "color": "#5B7288",
         "fuente": {
-          "tipo": "asfalto_banda",
-          "campo": "min"
+          "tipo": "asfalto_petro_item",
+          "idx": 0,
+          "campo": "precio"
         },
         "puntos": [
           {
+            "fecha": "2026-03-17",
+            "valor": 14.65
+          },
+          {
+            "fecha": "2026-03-24",
+            "valor": 15.61
+          },
+          {
+            "fecha": "2026-05-05",
+            "valor": 14.16
+          },
+          {
+            "fecha": "2026-07-23",
+            "valor": 14.99
+          },
+          {
+            "fecha": "2026-07-31",
+            "valor": 15.49
+          },
+          {
+            "fecha": "2026-08-05",
+            "valor": 15.79
+          },
+          {
             "fecha": "2026-08-07",
-            "valor": 15.05
+            "valor": 15.99
           },
           {
             "fecha": "2026-08-15",
-            "valor": 15.35
+            "valor": 16.29
+          },
+          {
+            "fecha": "2026-09-15",
+            "valor": 16.64
+          },
+          {
+            "fecha": "2026-09-24",
+            "valor": 16.94
+          },
+          {
+            "fecha": "2026-10-13",
+            "valor": 17.14
           }
         ]
       },
       {
         "clave": "asfalto_repsol",
-        "etiqueta": "Cemento asfáltico · Repsol (CA 60/70)",
+        "etiqueta": "Cemento asfáltico CA 60/70 · Repsol",
         "color": "#3E8E7E",
         "fuente": {
           "tipo": "asfalto_repsol_item",
@@ -244,51 +482,52 @@
     ]
   },
   "proyeccion": {
-    "meses": [
-      "Ago",
-      "Set",
-      "Oct",
-      "Nov",
-      "Dic",
-      "Ene 27",
-      "Feb 27"
-    ],
-    "base": [
-      88,
-      85,
-      82,
-      78,
-      76,
-      74,
-      72
-    ],
-    "alza": [
-      90,
+    "proj_valores": [
       98,
-      104,
-      106,
-      103,
-      99,
-      95
+      95,
+      92,
+      90,
+      88,
+      86
     ],
-    "baja": [
-      86,
-      80,
-      75,
-      71,
-      68,
-      66,
-      64
-    ],
-    "umbral_alza": 95,
-    "umbral_base": 75,
+    "passthrough": 0.5,
+    "umbral_alza": 100,
+    "umbral_base": 85,
     "esc_ref": {
-      "base": 78,
-      "alza": 106,
-      "baja": 70
+      "base": 90,
+      "alza": 105,
+      "baja": 80
     },
     "brent_spot": 91.8,
-    "brent_fecha": "2026-11-24"
+    "brent_fecha": "2026-11-24",
+    "brent_hist": [],
+    "brent_proj": [
+      {
+        "fecha": "2026-12-15",
+        "valor": 91.8
+      },
+      {
+        "fecha": "2027-01-15",
+        "valor": 89.83
+      },
+      {
+        "fecha": "2027-02-15",
+        "valor": 87.87
+      },
+      {
+        "fecha": "2027-03-15",
+        "valor": 86.9
+      },
+      {
+        "fecha": "2027-04-15",
+        "valor": 85.93
+      },
+      {
+        "fecha": "2027-05-15",
+        "valor": 84.97
+      }
+    ],
+    "diesel_proj": []
   },
   "alertas": {
     "destinatarios": [],
