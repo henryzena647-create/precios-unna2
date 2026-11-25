@@ -1,7 +1,7 @@
 {
   "meta": {
     "fecha_datos": "2026-11-25",
-    "generado": "2026-11-25T20:05"
+    "generado": "2026-11-25T20:09"
   },
   "combustible": {
     "unidad": "S/ galón · con impuestos (sin FISE ni descuentos) · uso interno S-50",
@@ -500,34 +500,116 @@
     },
     "brent_spot": 91.8,
     "brent_fecha": "2026-11-24",
-    "brent_hist": [],
+    "brent_hist": [
+      {
+        "fecha": "2025-11-15",
+        "valor": 63.8
+      },
+      {
+        "fecha": "2025-12-15",
+        "valor": 62.54
+      },
+      {
+        "fecha": "2026-01-15",
+        "valor": 66.6
+      },
+      {
+        "fecha": "2026-02-15",
+        "valor": 70.89
+      },
+      {
+        "fecha": "2026-03-15",
+        "valor": 103.13
+      },
+      {
+        "fecha": "2026-04-15",
+        "valor": 117.29
+      },
+      {
+        "fecha": "2026-05-15",
+        "valor": 107.14
+      },
+      {
+        "fecha": "2026-06-15",
+        "valor": 85.4
+      },
+      {
+        "fecha": "2026-07-15",
+        "valor": 83.76
+      },
+      {
+        "fecha": "2026-08-15",
+        "valor": 91.08
+      },
+      {
+        "fecha": "2026-09-15",
+        "valor": 114.16
+      },
+      {
+        "fecha": "2026-10-15",
+        "valor": 123.93
+      }
+    ],
     "brent_proj": [
       {
+        "fecha": "2026-10-15",
+        "valor": 123.93
+      },
+      {
         "fecha": "2026-12-15",
-        "valor": 91.8
+        "valor": 123.93
       },
       {
         "fecha": "2027-01-15",
-        "valor": 89.83
+        "valor": 116.61
       },
       {
         "fecha": "2027-02-15",
-        "valor": 87.87
+        "valor": 109.29
       },
       {
         "fecha": "2027-03-15",
-        "valor": 86.9
+        "valor": 102.97
       },
       {
         "fecha": "2027-04-15",
-        "valor": 85.93
+        "valor": 96.64
       },
       {
         "fecha": "2027-05-15",
-        "valor": 84.97
+        "valor": 90.32
       }
     ],
-    "diesel_proj": []
+    "diesel_proj": [
+      {
+        "fecha": "2026-11-25",
+        "valor": 20.1072
+      },
+      {
+        "fecha": "2026-12-15",
+        "valor": 20.11
+      },
+      {
+        "fecha": "2027-01-15",
+        "valor": 16.45
+      },
+      {
+        "fecha": "2027-02-15",
+        "valor": 12.79
+      },
+      {
+        "fecha": "2027-03-15",
+        "valor": 9.63
+      },
+      {
+        "fecha": "2027-04-15",
+        "valor": 6.46
+      },
+      {
+        "fecha": "2027-05-15",
+        "valor": 3.3
+      }
+    ]
   },
   "alertas": {
     "destinatarios": [],
