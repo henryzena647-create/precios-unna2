@@ -1,7 +1,7 @@
 {
   "meta": {
     "fecha_datos": "2026-11-25",
-    "generado": "2026-11-25T18:23"
+    "generado": "2026-11-25T18:28"
   },
   "combustible": {
     "unidad": "S/ galón · con impuestos (sin FISE ni descuentos) · uso interno S-50",
@@ -82,10 +82,10 @@
         {
           "planta": "La Pampilla (Callao)",
           "abastece": "Ancón (Lima)",
-          "diesel_uv": 8.3544,
-          "diesel_s50": 8.3544,
-          "gasohol_reg": 8.3544,
-          "gasohol_prem": 8.3544,
+          "diesel_uv": 21.6766,
+          "diesel_s50": 21.6766,
+          "gasohol_reg": 15.62934,
+          "gasohol_prem": 16.34583,
           "glp_kg": 2.4072
         }
       ]
