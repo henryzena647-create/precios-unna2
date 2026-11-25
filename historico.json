@@ -1,9 +1,18 @@
 {
-  "diesel_talara": [],
+  "diesel_talara": [
+    {
+      "fecha": "2016-01-11",
+      "valor": 3.6462
+    }
+  ],
   "asfalto_min": [
     {
       "fecha": "2025-01-30",
       "valor": 13.52
+    },
+    {
+      "fecha": "2026-10-13",
+      "valor": 15.35
     }
   ],
   "asfalto_repsol": [

@@ -1548,3 +1548,13 @@
 2026-11-25T06:56:07  [BRENT] EIA RBRTE = 92.94 (2026-11-17)
 2026-11-25T06:56:07  OK -> /home/runner/work/precios-unna2/precios-unna2/data.json  (fecha_datos=2026-11-25)
 2026-11-25T06:56:07  Sin cambios de precio respecto a la corrida anterior.
+2026-11-25T18:08:39  Petroperú combustible: https://www.petroperu.com.pe/Storage/tbl_listas_de_precio/fld_1177_Archivo_file/1750-d1Tu5Jm6Cq0Xg0B.pdf
+2026-11-25T18:08:42  Petroperú asfalto: https://www.petroperu.com.pe/Storage/tbl_listas_de_precio/fld_1177_Archivo_file/1737-j1Vg2Wk1Xg7Bo4H.pdf
+2026-11-25T18:08:54  Repsol asfalto: https://www.repsol.pe/content/dam/repsol-paises/pe/asfaltos/Precio%20de%20Lista%20Asfaltos-%20Recosac%20101026.pdf
+2026-11-25T18:09:06  Repsol combustible: diesel_uv=8.3544 gasohol_reg=8.3544 glp=2.4072
+2026-11-25T18:09:26  [BRENT] EIA RBRTE = 92.94 (2026-11-17)
+2026-11-25T18:09:26  OK -> /home/runner/work/precios-unna2/precios-unna2/data.json  (fecha_datos=2026-11-25)
+2026-11-25T18:09:26  Cambios detectados:
+[2026-11-25T18:09]
+  ALZA ▲  Cemento asfáltico · Petroperú (mín. lista): S/ 13.5200 -> S/ 15.3500 (+1.8300)
+2026-11-25T18:09:26  [ALERTA] Sin Power Automate ni SMTP configurados: cambio registrado, sin correo.

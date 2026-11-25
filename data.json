@@ -1,28 +1,92 @@
 {
   "meta": {
     "fecha_datos": "2026-11-25",
-    "generado": "2026-11-25T06:56"
+    "generado": "2026-11-25T18:09"
   },
   "combustible": {
     "unidad": "S/ galón · con impuestos (sin FISE ni descuentos) · uso interno S-50",
     "petroperu": {
-      "lista": "COMB",
-      "vigente_desde": "2025-01-30",
-      "plantas": []
+      "lista": "COMB-84-2026",
+      "vigente_desde": "2016-01-11",
+      "plantas": [
+        {
+          "planta": "Talara",
+          "abastece": "Ruta norte / Canchaque",
+          "diesel_uv": 3.6462,
+          "diesel_s50": 16.3293,
+          "gasohol_prem": 14.6051,
+          "gasohol_reg": 17.8364,
+          "glp_kg": null
+        },
+        {
+          "planta": "Piura",
+          "abastece": "Canchaque",
+          "diesel_uv": 16.6224,
+          "diesel_s50": 14.809,
+          "gasohol_prem": 18.0658,
+          "gasohol_reg": null,
+          "glp_kg": null
+        },
+        {
+          "planta": "Callao",
+          "abastece": "Ancón (Lima)",
+          "diesel_uv": 2.95,
+          "diesel_s50": 15.3353,
+          "gasohol_prem": 14.8217,
+          "gasohol_reg": 17.9256,
+          "glp_kg": null
+        },
+        {
+          "planta": "Conchan",
+          "abastece": "Ancón (Lima)",
+          "diesel_uv": 15.3353,
+          "diesel_s50": 14.8217,
+          "gasohol_prem": 17.9129,
+          "gasohol_reg": 17.1926,
+          "glp_kg": null
+        },
+        {
+          "planta": "Pisco",
+          "abastece": "Ruta a Puquio",
+          "diesel_uv": 15.3608,
+          "diesel_s50": 15.0894,
+          "gasohol_prem": 18.3334,
+          "gasohol_reg": 16.3135,
+          "glp_kg": null
+        },
+        {
+          "planta": "Mollendo",
+          "abastece": "Sur / Abancay–Puquio",
+          "diesel_uv": 15.9852,
+          "diesel_s50": 15.3442,
+          "gasohol_prem": 18.3717,
+          "gasohol_reg": 16.5377,
+          "glp_kg": null
+        },
+        {
+          "planta": "Cusco",
+          "abastece": "Abancay",
+          "diesel_uv": 23.5764,
+          "diesel_s50": 25.1458,
+          "gasohol_prem": 16.891,
+          "gasohol_reg": null,
+          "glp_kg": null
+        }
+      ]
     },
     "repsol": {
       "lista": "PrecioLima (La Pampilla)",
-      "vigente_desde": "2026-11-24",
+      "vigente_desde": "2026-11-25",
       "nota": "Reporte oficial Repsol/RELAPASAA · Lima. Precio de lista con IGV (no incluye recargo FISE).",
       "plantas": [
         {
           "planta": "La Pampilla (Callao)",
           "abastece": "Ancón (Lima)",
-          "diesel_uv": 1.0,
-          "diesel_s50": 1.0,
-          "gasohol_reg": 1.0,
-          "gasohol_prem": 1.0,
-          "glp_kg": 1.0
+          "diesel_uv": 8.3544,
+          "diesel_s50": 8.3544,
+          "gasohol_reg": 8.3544,
+          "gasohol_prem": 8.3544,
+          "glp_kg": 2.4072
         }
       ]
     }
@@ -31,8 +95,8 @@
     "unidad": "S/ galón + IGV · ex-planta",
     "igv": 0.18,
     "petroperu": {
-      "lista": "ASFA",
-      "vigente_desde": "2025-01-30",
+      "lista": "ASFA-11-2026",
+      "vigente_desde": "2026-10-13",
       "plantas": "Talara / Conchán",
       "items": [
         {
@@ -48,7 +112,7 @@
         {
           "familia": "Cemento asfáltico",
           "grado": "PEN 10/20",
-          "precio": 13.52
+          "precio": 15.35
         },
         {
           "familia": "Asfalto líquido",
@@ -58,12 +122,12 @@
         {
           "familia": "Asfalto líquido",
           "grado": "MC-30 / MC-70",
-          "precio": 26.89
+          "precio": 24.09
         }
       ],
       "banda": {
-        "min": 13.52,
-        "max": 26.89
+        "min": 15.35,
+        "max": 24.09
       }
     },
     "repsol": {
@@ -101,7 +165,12 @@
           "planta": "Talara",
           "campo": "diesel_uv"
         },
-        "puntos": []
+        "puntos": [
+          {
+            "fecha": "2016-01-11",
+            "valor": 3.6462
+          }
+        ]
       },
       {
         "clave": "diesel_repsol",
@@ -513,6 +582,10 @@
           {
             "fecha": "2025-01-30",
             "valor": 13.52
+          },
+          {
+            "fecha": "2026-10-13",
+            "valor": 15.35
           }
         ]
       },
