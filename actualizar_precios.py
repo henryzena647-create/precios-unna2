@@ -213,6 +213,7 @@ def scrape_petro_comb():
     latest = pdfs[0]                               # el de mayor número = más reciente
     log(f"Petroperú combustible: {latest}")
     text = pdf_text(download_pdf(latest))
+    log("=== DBG_COMB_INI ===\n" + text + "\n=== DBG_COMB_FIN ===")
 
     plantas = []
     # En la lista COMB, la tabla 'USO INTERNO' trae por planta:
@@ -254,6 +255,7 @@ def scrape_petro_asf():
     latest = pdfs[0]
     log(f"Petroperú asfalto: {latest}")
     text = pdf_text(download_pdf(latest))
+    log("=== DBG_ASF_INI ===\n" + text + "\n=== DBG_ASF_FIN ===")
     vals = [x for x in nums(text.replace("\n", " ")) if 5 < x < 40]  # precios plausibles
     banda = {"min": min(vals), "max": max(vals)} if vals else {"min": None, "max": None}
     # items representativos (mapeo grado exacto: verificar en PDF; se guarda banda)
