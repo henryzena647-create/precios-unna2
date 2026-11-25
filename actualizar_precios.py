@@ -412,8 +412,6 @@ def scrape_repsol_fuel():
     rows, text = _repsol_report_extract(REPSOL_FUEL_REPORT, timeout=70000)
     if not rows and not re.search(r"DIESEL|GASOHOL", text.upper()):
         raise RuntimeError("El reporte PrecioLima no expuso la tabla (revisar render/timeout)")
-    _dbg = [r for r in rows if any(re.search(r"DIESEL|GASOHOL|GLP|GASOLINA|TURBO|PRODUCTO", " ".join(r).upper()) for _ in [0])]
-    log("=== DBG_REPSOL_INI ===\n" + "\n".join(" | ".join(r) for r in _dbg[:30]) + "\n=== DBG_REPSOL_FIN ===")
     # Nombres reales del reporte (captura 11/08/2026):
     patrones = {
         "diesel_uv":    r"DIESEL\s*B5[\s\-]*S?-?50\s*UV",          # DIESEL B5-S50 UV
@@ -434,7 +432,9 @@ def scrape_repsol_fuel():
         return val if 8 <= val <= 45 else None             # S/galón (diésel/gasohol)
 
     for cells in rows:
-        etiqueta = " ".join(cells).upper()
+        # el nombre del producto debe estar en la PRIMERA celda no vacía de la fila
+        # (así se ignora la "mega-fila" con todo el texto junto, que terminaba en el Turbo A-1)
+        etiqueta = next((c for c in cells if c.strip()), "").upper()
         for campo, pat in patrones.items():
             if fila[campo] is None and re.search(pat, etiqueta):
                 fila[campo] = _plausible(campo, _last_number(cells))
