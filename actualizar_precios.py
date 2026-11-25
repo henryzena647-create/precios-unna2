@@ -170,6 +170,17 @@ def find_pdf_links(html):
     return list(dict.fromkeys(out))  # dedup preservando orden
 
 
+def _petro_price_pdfs(html):
+    """Solo los PDF que son LISTAS DE PRECIOS (carpeta tbl_listas_de_precio),
+    ordenados del más nuevo al más viejo por el número de archivo (1737 > 1719...).
+    Evita agarrar el informe de transparencia u otros PDF que hay en la página."""
+    price = [l for l in find_pdf_links(html) if "tbl_listas_de_precio" in l]
+    def _id(u):
+        m = re.search(r"/(\d+)-[^/]*\.pdf", u, flags=re.I)
+        return int(m.group(1)) if m else -1
+    return sorted(price, key=_id, reverse=True)
+
+
 def download_pdf(url):
     r = requests.get(url, headers=HEADERS, timeout=60)
     r.raise_for_status()
@@ -196,10 +207,10 @@ def nums(line):
 # =====================================================================
 def scrape_petro_comb():
     html = render_html(PETRO_LISTAS_PAGE)          # vista "Automotriz" por defecto
-    pdfs = [u for u in find_pdf_links(html)]
+    pdfs = _petro_price_pdfs(html)
     if not pdfs:
-        raise RuntimeError("No se hallaron PDF de combustible en la página Petroperú")
-    latest = pdfs[0]                               # el listado viene con el más nuevo primero
+        raise RuntimeError("No se hallaron PDF de LISTA DE PRECIOS de combustible en Petroperú")
+    latest = pdfs[0]                               # el de mayor número = más reciente
     log(f"Petroperú combustible: {latest}")
     text = pdf_text(download_pdf(latest))
 
@@ -237,9 +248,9 @@ def scrape_petro_comb():
 # =====================================================================
 def scrape_petro_asf():
     html = render_html(PETRO_ASFALTOS_PAGE)
-    pdfs = find_pdf_links(html)
+    pdfs = _petro_price_pdfs(html)
     if not pdfs:
-        raise RuntimeError("No se hallaron PDF de asfalto en la página Petroperú")
+        raise RuntimeError("No se hallaron PDF de LISTA DE PRECIOS de asfalto en Petroperú")
     latest = pdfs[0]
     log(f"Petroperú asfalto: {latest}")
     text = pdf_text(download_pdf(latest))
@@ -265,10 +276,16 @@ def scrape_petro_asf():
 def scrape_repsol_asf():
     html = render_html(REPSOL_ASF_PAGE)
     # enlaces del tipo .../Precio de Lista Asfaltos- Recosac DDMMYY.pdf
-    raw = re.findall(r'href="([^"]+[Aa]sfaltos[^"]+\.pdf[^"]*)"', html)
-    if not raw:
-        raise RuntimeError("No se hallaron PDF de asfalto Repsol")
-    latest = raw[0]
+    raw = re.findall(r'href="([^"]+\.pdf[^"]*)"', html, flags=re.I)
+    cand = [l for l in raw if re.search(r"[Pp]recio", l) and re.search(r"[Aa]sfalto", l)]
+    cand = [l for l in cand if "Ficha" not in l and "Seguridad" not in l]
+    if not cand:
+        raise RuntimeError("No se halló PDF de LISTA DE PRECIOS de asfalto Repsol (solo ficha u otros)")
+    def _rdate(u):
+        m = re.search(r"(\d{2})(\d{2})(\d{2})\.pdf", u)   # DDMMYY -> AAAAMMDD
+        return int("20" + m.group(3) + m.group(2) + m.group(1)) if m else -1
+    cand.sort(key=_rdate, reverse=True)
+    latest = cand[0]
     if latest.startswith("/"):
         latest = "https://www.repsol.pe" + latest
     log(f"Repsol asfalto: {latest}")
@@ -363,13 +380,19 @@ def scrape_repsol_fuel():
     fila = {"planta": "La Pampilla (Callao)", "abastece": "Ancón (Lima)",
             "diesel_uv": None, "diesel_s50": None, "gasohol_reg": None,
             "gasohol_prem": None, "glp_kg": None}
+    def _plausible(campo, val):
+        """Descarta valores basura (p.ej. 1.00 de una columna de factor/IGV)."""
+        if val is None:
+            return None
+        if campo == "glp_kg":
+            return val if 1.2 <= val <= 8 else None        # S/kg
+        return val if 8 <= val <= 45 else None             # S/galón (diésel/gasohol)
+
     for cells in rows:
         etiqueta = " ".join(cells).upper()
         for campo, pat in patrones.items():
             if fila[campo] is None and re.search(pat, etiqueta):
-                val = _last_number(cells)
-                if val is not None:
-                    fila[campo] = val
+                fila[campo] = _plausible(campo, _last_number(cells))
     # respaldo por texto plano si la lectura por celdas no encontró nada
     if all(v is None for k, v in fila.items() if k not in ("planta", "abastece")):
         for line in text.splitlines():
@@ -378,7 +401,8 @@ def scrape_repsol_fuel():
                 if fila[campo] is None and re.search(pat, up):
                     v = nums(line)
                     if v:
-                        fila[campo] = v[-1]
+                        fila[campo] = _plausible(campo, v[-1])
+    log(f"Repsol combustible: diesel_uv={fila['diesel_uv']} gasohol_reg={fila['gasohol_reg']} glp={fila['glp_kg']}")
     # vigencia del propio reporte ("Vigencia: 4/08/2026")
     mv = re.search(r"VIGENCIA[:\s]*(\d{1,2})[/.](\d{1,2})[/.](\d{4})", text.upper())
     vig = f"{mv.group(3)}-{int(mv.group(2)):02d}-{int(mv.group(1)):02d}" if mv else _today()
