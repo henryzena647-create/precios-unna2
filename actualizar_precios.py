@@ -508,85 +508,161 @@ def append_point(hist, key, fecha, valor):
 # =====================================================================
 # ---------------- Proyección del crudo (escenarios; revisar con cada STEO mensual de la EIA) ----------------
 PROYECCION_BASE = {
-    "meses": ["Ago", "Set", "Oct", "Nov", "Dic", "Ene 27", "Feb 27"],
-    "base": [88, 85, 82, 78, 76, 74, 72],
-    "alza": [90, 98, 104, 106, 103, 99, 95],
-    "baja": [86, 80, 75, 71, 68, 66, 64],
-    "umbral_alza": 95, "umbral_base": 75,
-    "esc_ref": {"base": 78, "alza": 106, "baja": 70},
+    # Proyección base del Brent (EIA STEO nov-2026): ~US$100 hasta fin de 2026,
+    # bajando a ~US$86 promedio en 2027 (por debajo de 90 en el 2T27).
+    # Trayectoria de los próximos 6 meses (niveles US$/bbl, se fechan hacia adelante).
+    "proj_valores": [98, 95, 92, 90, 88, 86],
+    "passthrough": 0.5,                       # traslado Brent -> diésel local (proyección)
+    "umbral_alza": 100, "umbral_base": 85,    # para el tablero gerencial
+    "esc_ref": {"base": 90, "alza": 105, "baja": 80},
 }
 
 
+def _meses_adelante(n):
+    """Devuelve n fechas mensuales (día 15) a partir del próximo mes."""
+    hoy = dt.date.today()
+    y, m = hoy.year, hoy.month
+    out = []
+    for _ in range(n):
+        m += 1
+        if m > 12:
+            m = 1; y += 1
+        out.append(f"{y:04d}-{m:02d}-15")
+    return out
+
+
+def _eia_rbrte(key, frequency, length):
+    """Consulta la serie RBRTE (Europe Brent Spot) a la API v2 de la EIA.
+    Devuelve filas [{period, value}] ordenadas de más reciente a más antigua."""
+    r = requests.get(
+        "https://api.eia.gov/v2/petroleum/pri/spt/data/",
+        params={
+            "api_key": key, "frequency": frequency, "data[0]": "value",
+            "facets[series][]": "RBRTE",
+            "sort[0][column]": "period", "sort[0][direction]": "desc",
+            "offset": 0, "length": length,
+        }, timeout=30)
+    r.raise_for_status()
+    return [row for row in r.json().get("response", {}).get("data", [])
+            if row.get("value") is not None]
+
+
 def scrape_brent(prev):
-    """Brent spot (Europe Brent Spot Price FOB, serie RBRTE) desde la API oficial de la EIA.
-    Requiere la variable EIA_API_KEY (gratis en https://www.eia.gov/opendata/).
-    Si no hay clave o falla, conserva el último Brent conocido."""
+    """Brent (Europe Brent Spot Price FOB, serie RBRTE) desde la API oficial de la EIA.
+    Requiere EIA_API_KEY (gratis en https://www.eia.gov/opendata/).
+    Devuelve dict: spot (último diario), fecha, e hist (realidad mensual ~12 meses).
+    Si no hay clave o falla, conserva lo último conocido en el data.json previo."""
+    py_prev = prev.get("proyeccion", {}) if isinstance(prev, dict) else {}
+    out = {"spot": None, "fecha": None, "hist": []}
     key = os.environ.get("EIA_API_KEY", "").strip()
     if key:
+        # 1) spot diario más reciente
         try:
-            r = requests.get(
-                "https://api.eia.gov/v2/petroleum/pri/spt/data/",
-                params={
-                    "api_key": key, "frequency": "daily", "data[0]": "value",
-                    "facets[series][]": "RBRTE",
-                    "sort[0][column]": "period", "sort[0][direction]": "desc",
-                    "offset": 0, "length": 5,
-                }, timeout=30)
-            r.raise_for_status()
-            for row in r.json().get("response", {}).get("data", []):
-                if row.get("value") is not None:
-                    log(f"[BRENT] EIA RBRTE = {row['value']} ({row.get('period')})")
-                    return round(float(row["value"]), 2), row.get("period")
+            diario = _eia_rbrte(key, "daily", 5)
+            if diario:
+                out["spot"] = round(float(diario[0]["value"]), 2)
+                out["fecha"] = diario[0].get("period")
+                log(f"[BRENT] EIA RBRTE spot = {out['spot']} ({out['fecha']})")
         except Exception as e:
-            log(f"[BRENT] API EIA falló: {e}. Se conserva el Brent previo.")
+            log(f"[BRENT] API EIA (diario) falló: {e}. Se conserva el Brent previo.")
+        # 2) histórico mensual (realidad de los últimos ~12 meses) -> línea única
+        try:
+            mens = _eia_rbrte(key, "monthly", 12)
+            hist = []
+            for row in reversed(mens):            # de más antiguo a más reciente
+                per = row.get("period")            # "YYYY-MM"
+                if per and len(per) == 7:
+                    hist.append({"fecha": per + "-15", "valor": round(float(row["value"]), 2)})
+            if hist:
+                out["hist"] = hist
+                log(f"[BRENT] EIA RBRTE mensual: {len(hist)} meses "
+                    f"({hist[0]['fecha'][:7]} → {hist[-1]['fecha'][:7]})")
+        except Exception as e:
+            log(f"[BRENT] API EIA (mensual) falló: {e}. Uso histórico previo.")
     else:
         log("[BRENT] Falta EIA_API_KEY (gratis en eia.gov/opendata). Se conserva el Brent previo.")
-    try:
-        py = prev.get("proyeccion", {})
-        if py.get("brent_spot"):
-            return float(py["brent_spot"]), py.get("brent_fecha")
-    except Exception:
-        pass
-    return 88.80, None  # semilla inicial
+
+    # respaldos desde el data.json anterior
+    if out["spot"] is None and py_prev.get("brent_spot"):
+        out["spot"] = float(py_prev["brent_spot"]); out["fecha"] = py_prev.get("brent_fecha")
+    if not out["hist"] and py_prev.get("brent_hist"):
+        out["hist"] = py_prev["brent_hist"]
+    if out["spot"] is None:
+        out["spot"] = 88.80                       # semilla inicial
+    return out
 
 
 def assemble(comb_petro, asf_petro, asf_repsol, comb_repsol, brent, prev):
     hoy = _today()
     hist = load_json(HIST, {})
 
-    # puntos del día para cada serie
-    def talara_uv():
+    # ---- "foto" del día para cada serie (se acumula solo si el valor cambió) ----
+    def callao_uv():
+        # Diésel B5 UV S-50 de Petroperú · planta Callao (abastece Ancón, con impuestos)
         for p in comb_petro["plantas"]:
-            if p["planta"].upper().startswith("TALARA"):
-                return p["diesel_uv"]
-        return None
+            if p["planta"].upper().startswith("CALLAO"):
+                return p.get("diesel_uv")
+        # respaldo: Conchán (también abastece Ancón) y luego la primera planta disponible
+        for p in comb_petro["plantas"]:
+            if p["planta"].upper().startswith("CONCH"):
+                return p.get("diesel_uv")
+        return comb_petro["plantas"][0].get("diesel_uv") if comb_petro["plantas"] else None
     def repsol_uv():
         return comb_repsol["plantas"][0]["diesel_uv"] if comb_repsol["plantas"] else None
+    def pen_petro():
+        # Cemento asfáltico PEN 40/50 a 120/150 (el grado que lleva Henry en su Excel)
+        items = asf_petro.get("items") or []
+        return items[0]["precio"] if items else None
 
-    append_point(hist, "diesel_talara", comb_petro.get("vigente_desde") or hoy, talara_uv())
-    append_point(hist, "asfalto_min", asf_petro.get("vigente_desde") or hoy, asf_petro["banda"]["min"])
+    append_point(hist, "diesel_petroperu", comb_petro.get("vigente_desde") or hoy, callao_uv())
+    append_point(hist, "diesel_repsol", comb_repsol.get("vigente_desde") or hoy, repsol_uv())
+    append_point(hist, "asfalto_petroperu", asf_petro.get("vigente_desde") or hoy, pen_petro())
     append_point(hist, "asfalto_repsol", asf_repsol.get("vigente_desde") or hoy,
-                 asf_repsol["items"][0]["precio"])
-    append_point(hist, "diesel_repsol", hoy, repsol_uv())
+                 asf_repsol["items"][0]["precio"] if asf_repsol.get("items") else None)
     Path(HIST).write_text(json.dumps(hist, ensure_ascii=False, indent=2), encoding="utf-8")
 
     series = [
-        {"clave":"diesel_talara","etiqueta":"Diésel B5 UV S-50 · Petroperú (Talara)","color":"#E9A020",
-         "fuente":{"tipo":"comb_planta","planta":"Talara","campo":"diesel_uv"},
-         "puntos":hist.get("diesel_talara",[])},
+        {"clave":"diesel_petroperu","etiqueta":"Diésel B5 UV S-50 · Petroperú (Callao)","color":"#E9A020",
+         "fuente":{"tipo":"comb_planta","planta":"Callao","campo":"diesel_uv"},
+         "puntos":hist.get("diesel_petroperu",[])},
         {"clave":"diesel_repsol","etiqueta":"Diésel B5 S-50 · Repsol (La Pampilla)","color":"#C77D3A",
-         "fuente":{"tipo":"none"},"puntos":hist.get("diesel_repsol",[])},
-        {"clave":"asfalto_min","etiqueta":"Cemento asfáltico · Petroperú (mín. lista)","color":"#5B7288",
-         "fuente":{"tipo":"asfalto_banda","campo":"min"},"puntos":hist.get("asfalto_min",[])},
-        {"clave":"asfalto_repsol","etiqueta":"Cemento asfáltico · Repsol (CA 60/70)","color":"#3E8E7E",
+         "fuente":{"tipo":"comb_repsol","campo":"diesel_uv"},"puntos":hist.get("diesel_repsol",[])},
+        {"clave":"asfalto_petroperu","etiqueta":"Cemento asfáltico PEN · Petroperú","color":"#5B7288",
+         "fuente":{"tipo":"asfalto_petro_item","idx":0,"campo":"precio"},
+         "puntos":hist.get("asfalto_petroperu",[])},
+        {"clave":"asfalto_repsol","etiqueta":"Cemento asfáltico CA 60/70 · Repsol","color":"#3E8E7E",
          "fuente":{"tipo":"asfalto_repsol_item","grado":"CA 60/70","campo":"precio"},
          "puntos":hist.get("asfalto_repsol",[])},
     ]
 
-    brent_spot, brent_fecha = brent
+    # ---------------- Proyección: UNA línea = realidad (Brent mensual) + 6 meses hacia adelante ----------------
     proyeccion = dict(PROYECCION_BASE)
-    proyeccion["brent_spot"] = brent_spot
-    proyeccion["brent_fecha"] = brent_fecha
+    proyeccion["brent_spot"]  = brent.get("spot")
+    proyeccion["brent_fecha"] = brent.get("fecha")
+    proyeccion["brent_hist"]  = brent.get("hist", [])          # realidad (línea continua)
+
+    # trayectoria futura anclada al último dato real de Brent
+    base_hist = brent.get("hist", [])
+    ancla = base_hist[-1]["valor"] if base_hist else (brent.get("spot") or 90.0)
+    fechas_fut = _meses_adelante(len(PROYECCION_BASE["proj_valores"]))
+    niveles = PROYECCION_BASE["proj_valores"]
+    # suaviza el empalme: desplaza la trayectoria para que arranque desde el último real
+    ajuste = ancla - niveles[0]
+    proj = [{"fecha": f, "valor": round(v + ajuste * (1 - i/len(niveles)), 2)}
+            for i, (f, v) in enumerate(zip(fechas_fut, niveles))]
+    # el primer punto proyectado se une a la realidad (mismo ancla el mes previo)
+    proyeccion["brent_proj"] = ([{"fecha": base_hist[-1]["fecha"], "valor": ancla}] if base_hist else []) + proj
+
+    # proyección del diésel local (línea punteada en Tendencia) por traslado del Brent
+    dpp = hist.get("diesel_petroperu", [])
+    if dpp and base_hist:
+        d_ancla = dpp[-1]["valor"]
+        pt = PROYECCION_BASE["passthrough"]
+        proyeccion["diesel_proj"] = ([{"fecha": dpp[-1]["fecha"], "valor": d_ancla}] +
+            [{"fecha": p["fecha"], "valor": round(d_ancla + (p["valor"] - ancla) * pt, 2)}
+             for p in proj])
+    else:
+        proyeccion["diesel_proj"] = []
 
     # destinatarios / URL de Power Automate guardados desde el dashboard
     alertas = load_json(CONFIG_ALERTAS, {"destinatarios": [], "webhook_url": ""})
@@ -636,6 +712,10 @@ def serie_actual(data, fuente):
                     return p.get(fuente["campo"])
         elif t == "asfalto_banda":
             return data["asfalto"]["petroperu"]["banda"].get(fuente["campo"])
+        elif t == "asfalto_petro_item":
+            items = data["asfalto"]["petroperu"].get("items") or []
+            idx = fuente.get("idx", 0)
+            return items[idx].get(fuente["campo"]) if idx < len(items) else None
         elif t == "asfalto_repsol_item":
             for it in data["asfalto"]["repsol"]["items"]:
                 if it["grado"] == fuente["grado"]:

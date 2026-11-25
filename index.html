@@ -179,7 +179,7 @@
     <div class="kpis" id="proy-kpis"></div>
     <section>
       <div class="sec-head"><span class="num">04</span><h2>Proyección del Brent — 6 meses (mensual)</h2></div>
-      <p class="note" style="font-size:13px">Comportamiento mensual esperado del Brent, Ago-2026 a Feb-2027, en tres escenarios. Base = EIA (STEO ago-2026); alza y baja = rangos con IEA/OPEP/bancos según los factores de riesgo.</p>
+      <p class="note" style="font-size:13px">Una sola línea: el <b>Brent real</b> (trazo continuo, cierre mensual EIA · serie RBRTE) y su <b>proyección a 6 meses</b> (trazo punteado), anclada al último dato real y recalibrada con cada actualización según el STEO de la EIA y los factores de riesgo.</p>
       <div class="chart-card"><div class="legend" id="proy-legend"></div><div id="proy-chart"></div></div>
     </section>
     <section>
@@ -189,7 +189,7 @@
     <section>
       <div class="sec-head"><span class="num">06</span><h2>Qué dice cada institución</h2></div>
       <table id="tblInst"></table>
-      <div class="note">Fuentes: EIA STEO (11-ago-2026), IEA OMR (12-ago-2026), OPEP MOMR (12-ago-2026), bancos vía prensa financiera.</div>
+      <div class="note">Fuentes: EIA STEO (nov-2026), IEA OMR, OPEP MOMR y bancos de inversión vía prensa financiera. Brent real: EIA Open Data (serie RBRTE), actualizado automáticamente.</div>
     </section>
   </div>
 
@@ -282,19 +282,16 @@ const DATA = {
       items:[{familia:"Cemento asfáltico",grado:"CA 60/70",precio:15.99},{familia:"Cemento asfáltico",grado:"CA 85/100",precio:15.99},{familia:"Cemento asfáltico",grado:"CA 120/150",precio:15.99}]}
   },
   timeline:{ unidad:"S/ galón", series:[
-    {clave:"diesel_talara",etiqueta:"Diésel B5 UV S-50 · Petroperú (Talara)",color:"#E9A020",fuente:{tipo:"comb_planta",planta:"Talara",campo:"diesel_uv"},puntos:[{fecha:"2026-03-17",valor:19.06},{fecha:"2026-08-04",valor:23.66},{fecha:"2026-08-11",valor:23.12}]},
-    {clave:"diesel_repsol",etiqueta:"Diésel B5 S-50 · Repsol (La Pampilla)",color:"#C77D3A",fuente:{tipo:"comb_repsol",campo:"diesel_uv"},puntos:[{fecha:"2026-08-04",valor:25.2048}]},
-    {clave:"asfalto_min",etiqueta:"Cemento asfáltico · Petroperú (mín.)",color:"#5B7288",fuente:{tipo:"asfalto_banda",campo:"min"},puntos:[{fecha:"2026-07-23",valor:14.05},{fecha:"2026-08-07",valor:15.05},{fecha:"2026-08-15",valor:15.35}]},
-    {clave:"asfalto_repsol",etiqueta:"Cemento asfáltico · Repsol (CA 60/70)",color:"#3E8E7E",fuente:{tipo:"asfalto_repsol_item",grado:"CA 60/70",campo:"precio"},puntos:[{fecha:"2026-03-18",valor:15.32},{fecha:"2026-08-07",valor:15.99}]}
+    {clave:"diesel_petroperu",etiqueta:"Diésel B5 UV S-50 · Petroperú (Callao)",color:"#E9A020",fuente:{tipo:"comb_planta",planta:"Callao",campo:"diesel_uv"},puntos:[]},
+    {clave:"diesel_repsol",etiqueta:"Diésel B5 S-50 · Repsol (La Pampilla)",color:"#C77D3A",fuente:{tipo:"comb_repsol",campo:"diesel_uv"},puntos:[]},
+    {clave:"asfalto_petroperu",etiqueta:"Cemento asfáltico PEN · Petroperú",color:"#5B7288",fuente:{tipo:"asfalto_petro_item",idx:0,campo:"precio"},puntos:[]},
+    {clave:"asfalto_repsol",etiqueta:"Cemento asfáltico CA 60/70 · Repsol",color:"#3E8E7E",fuente:{tipo:"asfalto_repsol_item",grado:"CA 60/70",campo:"precio"},puntos:[]}
   ]},
   proyeccion:{
-    brent_spot:88.80,
-    meses:["Ago","Set","Oct","Nov","Dic","Ene 27","Feb 27"],
-    base:[88,85,82,78,76,74,72],
-    alza:[90,98,104,106,103,99,95],
-    baja:[86,80,75,71,68,66,64],
-    umbral_alza:95, umbral_base:75,
-    esc_ref:{base:78,alza:106,baja:70}
+    brent_spot:null, brent_fecha:null,
+    brent_hist:[], brent_proj:[], diesel_proj:[],
+    umbral_alza:100, umbral_base:85,
+    esc_ref:{base:90,alza:105,baja:80}
   },
   alertas:{ destinatarios:[], webhook_url:"" }
 };
@@ -308,6 +305,7 @@ const S0=n=>(n==null||isNaN(n))?"—":"S/ "+Number(n).toLocaleString('es-PE',{ma
 const S4=n=>(n==null||isNaN(n))?"—":"S/ "+Number(n).toLocaleString('es-PE',{minimumFractionDigits:2,maximumFractionDigits:4});
 const U=n=>"US$ "+Number(n).toLocaleString('es-PE',{minimumFractionDigits:2,maximumFractionDigits:2});
 const fmtDate=iso=>{ if(!iso)return"—"; const [y,m,d]=iso.split("-").map(Number); const mm=["ene","feb","mar","abr","may","jun","jul","ago","set","oct","nov","dic"]; return `${d} ${mm[m-1]} ${y}`; };
+const fmtMes=iso=>{ if(!iso)return"—"; const [y,m]=iso.split("-").map(Number); const mm=["ene","feb","mar","abr","may","jun","jul","ago","set","oct","nov","dic"]; return `${mm[m-1]} ${y}`; };
 const cell=v=>v==null?`<td class="empty">por cargar</td>`:`<td class="num">${S4(v)}</td>`;
 function resolveCurrent(f,data){ if(!f)return null; try{
   if(f.tipo==="comb_planta"){const p=data.combustible.petroperu.plantas.find(x=>x.planta===f.planta);return p?p[f.campo]:null;}
@@ -374,9 +372,13 @@ function lineChart(el, series, opts){
 }
 function renderTendencia(){
   const tl=state.timeline;
-  $('tl-legend').innerHTML=tl.series.map(s=>`<div class="it"><span class="sw" style="background:${s.color}"></span>${s.etiqueta}</div>`).join("");
-  const series=tl.series.map(s=>({color:s.color,etiqueta:s.etiqueta,
+  const series=tl.series.map(s=>({color:s.color,etiqueta:s.etiqueta,dash:false,
     puntos:(s.puntos||[]).slice().sort((a,b)=>Date.parse(a.fecha)-Date.parse(b.fecha))}));
+  // proyección del diésel Petroperú (línea punteada, mismo gráfico)
+  const dproj=(state.proyeccion&&state.proyeccion.diesel_proj)||[];
+  if(dproj.length>1){ series.push({color:"#E9A020",etiqueta:"Proyección diésel (6 meses)",dash:true,
+    puntos:dproj.slice().sort((a,b)=>Date.parse(a.fecha)-Date.parse(b.fecha))}); }
+  $('tl-legend').innerHTML=series.map(s=>`<div class="it"><span class="sw" style="background:${s.color}${s.dash?';opacity:.6;border-bottom:2px dashed '+s.color:''}"></span>${s.etiqueta}</div>`).join("");
   const all=series.flatMap(s=>s.puntos);
   const el=$('tl-chart');
   if(all.length===0){ el.innerHTML='<div style="color:#9FB0C0;font-size:12px;padding:8px">Sin datos todavía.</div>'; return; }
@@ -399,9 +401,10 @@ function renderTendencia(){
   const labs=[];
   series.forEach(s=>{
     if(s.puntos.length>1){ const d=s.puntos.map(p=>`${X(Date.parse(p.fecha))},${Y(p.valor)}`).join(" ");
-      g+=`<polyline points="${d}" fill="none" stroke="${s.color}" stroke-width="2.6"/>`; }
-    s.puntos.forEach(p=>{ const x=X(Date.parse(p.fecha)), y=Y(p.valor);
-      g+=`<circle cx="${x}" cy="${y}" r="3.6" fill="${s.color}" stroke="#10161F" stroke-width="1.2"/>`; });
+      g+=`<polyline points="${d}" fill="none" stroke="${s.color}" stroke-width="${s.dash?2.2:2.6}" ${s.dash?'stroke-dasharray="6 4" opacity="0.85"':''}/>`; }
+    s.puntos.forEach((p,i)=>{ const x=X(Date.parse(p.fecha)), y=Y(p.valor);
+      if(s.dash){ if(i>0) g+=`<circle cx="${x}" cy="${y}" r="2.6" fill="none" stroke="${s.color}" stroke-width="1.5"/>`; }
+      else g+=`<circle cx="${x}" cy="${y}" r="3.6" fill="${s.color}" stroke="#10161F" stroke-width="1.2"/>`; });
     const lp=s.puntos[s.puntos.length-1];
     if(lp) labs.push({y:Y(lp.valor), color:s.color, txt:S(lp.valor)});
   });
@@ -412,28 +415,76 @@ function renderTendencia(){
 }
 
 /* ===================== PROYECCION ===================== */
+/* Una sola línea = realidad (Brent mensual, trazo continuo) + proyección 6 meses (trazo punteado) */
+function brentChart(el, hist, proj){
+  const H=(hist||[]).slice().sort((a,b)=>Date.parse(a.fecha)-Date.parse(b.fecha));
+  const P=(proj||[]).slice().sort((a,b)=>Date.parse(a.fecha)-Date.parse(b.fecha));
+  const all=H.concat(P);
+  if(all.length===0){ el.innerHTML='<div style="color:#9FB0C0;font-size:12px;padding:8px">Sin datos de Brent todavía.</div>'; return; }
+  const W=920,Ht=330,padL=52,padR=66,padT=18,padB=42;
+  const mm=["ene","feb","mar","abr","may","jun","jul","ago","set","oct","nov","dic"];
+  let tMin=Math.min(...all.map(p=>Date.parse(p.fecha))), tMax=Math.max(...all.map(p=>Date.parse(p.fecha)));
+  if(tMin===tMax){ tMin-=30*864e5; tMax+=30*864e5; }
+  let vMin=Math.min(...all.map(p=>p.valor)), vMax=Math.max(...all.map(p=>p.valor));
+  const vpad=Math.max((vMax-vMin)*0.18,2); vMin=Math.floor(vMin-vpad); vMax=Math.ceil(vMax+vpad);
+  const X=t=>padL+((t-tMin)/((tMax-tMin)||1))*(W-padL-padR);
+  const Y=v=>padT+(1-(v-vMin)/((vMax-vMin))||0)*(Ht-padT-padB);
+  let g="";
+  // franja de proyección (futuro) sombreada
+  if(P.length){ const x0=X(Date.parse(P[0].fecha));
+    g+=`<rect x="${x0}" y="${padT}" width="${W-padR-x0}" height="${Ht-padT-padB}" fill="#E9A020" opacity="0.05"/>`;
+    g+=`<line x1="${x0}" y1="${padT}" x2="${x0}" y2="${Ht-padB}" stroke="#E9A020" stroke-width="1" stroke-dasharray="3 3" opacity="0.6"/>`;
+    g+=`<text x="${x0+5}" y="${padT+12}" fill="#E9A020" font-size="10" font-weight="700">proyección →</text>`; }
+  for(let k=0;k<=4;k++){ const v=vMin+(vMax-vMin)*k/4, y=Y(v);
+    g+=`<line x1="${padL}" y1="${y}" x2="${W-padR}" y2="${y}" stroke="#26313E"/>`;
+    g+=`<text x="${padL-8}" y="${y+4}" fill="#8698A8" font-size="11" text-anchor="end">${U(v)}</text>`; }
+  const nt=5;
+  for(let k=0;k<=nt;k++){ const t=tMin+(tMax-tMin)*k/nt, x=X(t), d=new Date(t);
+    g+=`<text x="${x}" y="${Ht-14}" fill="#8698A8" font-size="10.5" text-anchor="middle">${mm[d.getUTCMonth()]} ${String(d.getUTCFullYear()).slice(2)}</text>`; }
+  // realidad (continua)
+  if(H.length>1){ const d=H.map(p=>`${X(Date.parse(p.fecha))},${Y(p.valor)}`).join(" ");
+    g+=`<polyline points="${d}" fill="none" stroke="#E9A020" stroke-width="2.8"/>`; }
+  H.forEach(p=>{ g+=`<circle cx="${X(Date.parse(p.fecha))}" cy="${Y(p.valor)}" r="3" fill="#E9A020"/>`; });
+  // proyección (punteada)
+  if(P.length>1){ const d=P.map(p=>`${X(Date.parse(p.fecha))},${Y(p.valor)}`).join(" ");
+    g+=`<polyline points="${d}" fill="none" stroke="#E9A020" stroke-width="2.4" stroke-dasharray="6 4" opacity="0.9"/>`; }
+  P.forEach((p,i)=>{ if(i===0)return; g+=`<circle cx="${X(Date.parse(p.fecha))}" cy="${Y(p.valor)}" r="2.6" fill="none" stroke="#E9A020" stroke-width="1.6"/>`; });
+  // etiqueta final (realidad y proyección)
+  const lr=H[H.length-1]; if(lr) g+=`<text x="${X(Date.parse(lr.fecha))}" y="${Y(lr.valor)-9}" fill="#EAEFF4" font-size="10.5" font-weight="700" text-anchor="middle">${U(lr.valor)}</text>`;
+  const lp=P[P.length-1]; if(lp) g+=`<text x="${W-padR+6}" y="${Y(lp.valor)+4}" fill="#E9A020" font-size="11.5" font-weight="700" text-anchor="start">${U(lp.valor)}</text>`;
+  el.innerHTML=`<svg viewBox="0 0 ${W} ${Ht}" style="width:100%;height:auto" xmlns="http://www.w3.org/2000/svg">${g}</svg>`;
+}
 function renderProyeccion(){
   const p=state.proyeccion;
+  const hist=p.brent_hist||[], proj=p.brent_proj||[];
+  const realLast = hist.length?hist[hist.length-1]:null;
+  const projLast = proj.length?proj[proj.length-1]:null;
+  const spot = p.brent_spot!=null?p.brent_spot:(realLast?realLast.valor:null);
+  const tendencia = (projLast&&realLast)?(projLast.valor-realLast.valor):0;
   $('proy-kpis').innerHTML=`
-    <div class="kpi"><div class="lab">Brent spot (11-ago)</div><div class="val">${U(p.brent_spot)}</div><div class="foot">referencia</div></div>
-    <div class="kpi"><div class="lab">Base 4T26 (EIA)</div><div class="val">${U(p.esc_ref.base)}</div><div class="foot">trayectoria central</div></div>
-    <div class="kpi steel"><div class="lab">Alza (pico Ormuz)</div><div class="val">${U(p.esc_ref.alza)}</div><div class="foot">Goldman &gt;US$110</div></div>
-    <div class="kpi steel"><div class="lab">Baja (superávit)</div><div class="val">${U(p.esc_ref.baja)}</div><div class="foot">J.P. Morgan ~US$60</div></div>`;
-  $('proy-legend').innerHTML=`<div class="it"><span class="sw" style="background:#E9A020"></span>Base (EIA)</div><div class="it"><span class="sw" style="background:#E58C7A"></span>Alza</div><div class="it"><span class="sw" style="background:#7FBF9C"></span>Baja</div>`;
-  const mk=(arr,color,dash)=>({color,dash,puntos:arr.map((v,i)=>({i,valor:v}))});
-  lineChart($('proy-chart'), [mk(p.alza,"#E58C7A",true),mk(p.baja,"#7FBF9C",true),mk(p.base,"#E9A020",false)], {labels:p.meses, money:true});
-  const fac=[["Estrecho de Ormuz","~20% del crudo mundial; tránsito cayó de 21.6 a 4.9 mb/d (2T26). Factor dominante."],["Producción cerrada","5.5 mb/d en julio; EIA deja ~0.6 mb/d residual hasta fin de 2027."],["Conflicto EE.UU.–Irán / talks Irán–Omán","La reapertura del estrecho aún no se concreta."],["Bab el-Mandeb","Amenaza de bloqueo a exportaciones saudíes: riesgo alcista."],["Inventarios en mínimos","IEA: <7.9 bn bbl en julio, mínimo desde abr-2025. Poco colchón."],["Política OPEP+","El ritmo de desmonte de recortes presiona el precio a la baja."],["Demanda (Asia/China)","OPEP recortó demanda 2026 a +0.6 mb/d; recuperación en 2027 (+2.2)."],["Oferta no-OPEP récord","EE.UU. ~13.8 mb/d 2026: colchón bajista estructural."]];
+    <div class="kpi"><div class="lab">Brent spot${p.brent_fecha?' ('+fmtDate(p.brent_fecha)+')':''}</div><div class="val">${U(spot)}</div><div class="foot">EIA · RBRTE</div></div>
+    <div class="kpi"><div class="lab">Último real mensual</div><div class="val">${realLast?U(realLast.valor):'—'}</div><div class="foot">${realLast?fmtMes(realLast.fecha):'cierre de mes'}</div></div>
+    <div class="kpi steel"><div class="lab">Proyección 6 meses</div><div class="val">${projLast?U(projLast.valor):'—'}</div><div class="foot">${projLast?fmtMes(projLast.fecha):''}</div></div>
+    <div class="kpi steel"><div class="lab">Tendencia esperada</div><div class="val">${tendencia>=0?'▲':'▼'} ${U(Math.abs(tendencia))}</div><div class="foot">${tendencia>=0?'al alza':'a la baja'} en 6 meses</div></div>`;
+  $('proy-legend').innerHTML=`<div class="it"><span class="sw" style="background:#E9A020"></span>Brent real (EIA)</div><div class="it"><span class="sw" style="background:#E9A020;opacity:.6;border-bottom:2px dashed #E9A020"></span>Proyección 6 meses</div>`;
+  brentChart($('proy-chart'), hist, proj);
+  const fac=[["Política OPEP+","El desmonte gradual de recortes añade barriles al mercado: principal presión a la baja hacia 2027."],["Oferta no-OPEP récord","Producción de EE.UU. en máximos (~13.8 mb/d): colchón bajista estructural."],["Superávit proyectado 2026","EIA e IEA anticipan acumulación de inventarios, consistente con precios más bajos."],["Demanda Asia/China","Recuperación moderada de la demanda; sostiene el precio sin revertir la tendencia."],["Riesgo geopolítico","Tensiones en Medio Oriente y el Estrecho de Ormuz mantienen una prima de riesgo alcista latente."],["Decisiones de la Fed / dólar","Un dólar más débil tiende a sostener el crudo; recortes de tasa son factor alcista moderado."],["Inventarios OCDE","Niveles aún ajustados limitan caídas bruscas pese al superávit esperado."],["Mantenimiento y fletes","Paradas de refinería y costos de flete afectan el precio local por encima del Brent."]];
   $('factores').innerHTML=fac.map(f=>`<li><b>${f[0]}</b>${f[1]}</li>`).join("");
-  const inst=[["EIA — STEO (11-ago)","Base $85 (3T26)→$78 (4T26)→$69 (2027).","Referencia central"],["IEA — OMR (12-ago)","Oferta 2026 a 102 mb/d; inventarios en mínimos.","Oferta ajustada"],["OPEP — MOMR (12-ago)","Demanda 2026 +0.6; 2027 +2.2 mb/d (Asia).","Constructivo demanda"],["Goldman Sachs","Prom. 2026 $85; picos &gt;$110.","Alcista ante shock"],["J.P. Morgan","~$60 promedio 2026.","Bajista / superávit"]];
+  const inst=[["EIA — STEO (nov-2026)","Brent ~US$100 a fin de 2026; promedio 2027 ~US$86 (bajo US$90 en 2T27).","Referencia central"],["IEA — OMR","Superávit de oferta hacia 2026–2027; inventarios en aumento.","Sesgo bajista"],["OPEP — MOMR","Demanda sostenida por Asia; defiende precios con su política de cuotas.","Constructivo demanda"],["Goldman Sachs","Escenario de riesgo alcista ante shock de oferta (Ormuz).","Alcista ante shock"],["J.P. Morgan","Superávit estructural presiona a la baja el promedio.","Bajista / superávit"]];
   $('tblInst').innerHTML=`<thead><tr><th>Fuente</th><th>Visión</th><th>Sesgo</th></tr></thead><tbody>`+inst.map(r=>`<tr><td><b>${r[0]}</b></td><td style="font-size:12px">${r[1]}</td><td style="font-size:12px">${r[2]}</td></tr>`).join("")+`</tbody>`;
 }
 
 /* ===================== TABLERO ===================== */
+let tableroTouched=false;
 function seedTablero(){
   const p=state.proyeccion;
-  const tal=state.combustible.petroperu.plantas.find(x=>x.planta==='Talara');
-  if(!$('inBrent').value) $('inBrent').value=p.brent_spot;
-  if(!$('inDiesel').value) $('inDiesel').value=(tal?tal.diesel_uv:23.66).toFixed(2);
+  const pls=state.combustible.petroperu.plantas||[];
+  const cal=pls.find(x=>/callao/i.test(x.planta))||pls.find(x=>/conch/i.test(x.planta))||pls[0];
+  // mientras el usuario no edite, el tablero refleja el Brent y el diésel reales
+  if(!tableroTouched){
+    if(p.brent_spot!=null) $('inBrent').value=p.brent_spot;
+    if(cal&&cal.diesel_uv) $('inDiesel').value=Number(cal.diesel_uv).toFixed(2);
+  }
 }
 function zona(b){ const p=state.proyeccion; return b>p.umbral_alza?'alza':(b>=p.umbral_base?'base':'baja'); }
 function recomputeTablero(){
@@ -468,9 +519,9 @@ function renderAll(){ try{
   seedTablero(); recomputeTablero();
   $('subFecha').textContent='datos al '+fmtDate(state.meta.fecha_datos);
   $('fechaDatos').textContent=fmtDate(state.meta.fecha_datos||"");
-  $('foot').textContent=`Datos al ${fmtDate(state.meta.fecha_datos)} · Fuentes: Petroperú, Repsol, EIA/IEA/OPEP (ago-2026) · CDA / Survial — UNNA Transporte.`;
+  $('foot').textContent=`Datos al ${fmtDate(state.meta.fecha_datos)} · Fuentes: Petroperú, Repsol, EIA (Brent RBRTE) · CDA / Survial — UNNA Transporte.`;
 }catch(e){console.error(e);} }
-['inBrent','inGal','inDiesel','inPass'].forEach(id=>$(id).addEventListener('input',recomputeTablero));
+['inBrent','inGal','inDiesel','inPass'].forEach(id=>$(id).addEventListener('input',()=>{tableroTouched=true;recomputeTablero();}));
 
 /* ===================== TOAST / ALERTAS ===================== */
 function toast(m){const t=document.createElement('div');t.className='toast';t.textContent=m;$('toaster').appendChild(t);setTimeout(()=>{t.style.transition='.3s';t.style.opacity='0';setTimeout(()=>t.remove(),300);},4000);}
@@ -511,7 +562,7 @@ async function loadExternalData(){
     obj.proyeccion=obj.proyeccion||state.proyeccion; obj.alertas=obj.alertas||state.alertas;
     state=obj; if(state.alertas&&state.alertas.destinatarios)destinatarios=state.alertas.destinatarios.slice();
     renderAll(); const n=new Date().toLocaleTimeString('es-PE',{hour:'2-digit',minute:'2-digit'});
-    setSync(`Sincronizado ${n} · 7/13/19`,true); if(!firstSync)toast('Datos actualizados'); firstSync=false;
+    setSync(`Sincronizado ${n} · corre 7am·1pm·7pm`,true); if(!firstSync)toast('Datos actualizados'); firstSync=false;
   }catch(e){ setSync('Datos embebidos',false); }
 }
 async function refrescar(){const b=$('btnRefrescar');b.disabled=true;const o=b.textContent;b.textContent='Actualizando…';setSync('Actualizando…',false);
