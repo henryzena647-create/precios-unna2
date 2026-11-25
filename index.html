@@ -133,7 +133,7 @@
   <div class="sub">Petroperú / Repsol · Crudo Brent · Indicador de compras · <span id="subFecha"></span></div></div>
   <div class="toolbar">
     <div class="sync" id="syncBox"><span class="dot2"></span><span id="syncStatus">Cargando…</span></div>
-    <div class="datefield"><label>Datos al</label><input type="date" id="fechaDatos"></div>
+    <div class="datefield"><label>Datos al</label><div id="fechaDatos" style="background:var(--ink-2);border:1px solid #2C3A4A;color:#EEF1F4;border-radius:7px;padding:6px 10px;font-size:12.5px;font-weight:600;min-width:92px;text-align:center">—</div></div>
     <button class="btn" id="btnAlertas">✉ Alertas</button>
     <button class="btn" id="btnRefrescar">↻ Actualizar</button>
     <button class="btn" id="btnPrint">Imprimir</button>
@@ -375,9 +375,40 @@ function lineChart(el, series, opts){
 function renderTendencia(){
   const tl=state.timeline;
   $('tl-legend').innerHTML=tl.series.map(s=>`<div class="it"><span class="sw" style="background:${s.color}"></span>${s.etiqueta}</div>`).join("");
-  const allDates=[...new Set(tl.series.flatMap(s=>s.puntos.map(p=>p.fecha)))].sort();
-  const series=tl.series.map(s=>({color:s.color,puntos:s.puntos.slice().sort((a,b)=>a.fecha<b.fecha?-1:1).map(p=>({i:allDates.indexOf(p.fecha),valor:p.valor}))}));
-  lineChart($('tl-chart'), series, {labels:allDates.map(fmtDate), money:false});
+  const series=tl.series.map(s=>({color:s.color,etiqueta:s.etiqueta,
+    puntos:(s.puntos||[]).slice().sort((a,b)=>Date.parse(a.fecha)-Date.parse(b.fecha))}));
+  const all=series.flatMap(s=>s.puntos);
+  const el=$('tl-chart');
+  if(all.length===0){ el.innerHTML='<div style="color:#9FB0C0;font-size:12px;padding:8px">Sin datos todavía.</div>'; return; }
+  const W=920,H=330,padL=56,padR=78,padT=18,padB=42;
+  const mm=["ene","feb","mar","abr","may","jun","jul","ago","set","oct","nov","dic"];
+  let tMin=Math.min(...all.map(p=>Date.parse(p.fecha))), tMax=Math.max(...all.map(p=>Date.parse(p.fecha)));
+  if(tMin===tMax){ tMin-=15*864e5; tMax+=15*864e5; }
+  let vMin=Math.min(...all.map(p=>p.valor)), vMax=Math.max(...all.map(p=>p.valor));
+  const vpad=Math.max((vMax-vMin)*0.18,0.6); vMin=Math.floor(vMin-vpad); vMax=Math.ceil(vMax+vpad);
+  const X=t=>padL+((t-tMin)/((tMax-tMin)||1))*(W-padL-padR);
+  const Y=v=>padT+(1-(v-vMin)/((vMax-vMin)||1))*(H-padT-padB);
+  let g="";
+  for(let k=0;k<=4;k++){ const v=vMin+(vMax-vMin)*k/4, y=Y(v);
+    g+=`<line x1="${padL}" y1="${y}" x2="${W-padR}" y2="${y}" stroke="#26313E"/>`;
+    g+=`<text x="${padL-8}" y="${y+4}" fill="#8698A8" font-size="11" text-anchor="end">${S0(v)}</text>`; }
+  const nt=5;
+  for(let k=0;k<=nt;k++){ const t=tMin+(tMax-tMin)*k/nt, x=X(t), dt=new Date(t);
+    g+=`<text x="${x}" y="${H-14}" fill="#8698A8" font-size="10.5" text-anchor="middle">${mm[dt.getUTCMonth()]} ${String(dt.getUTCFullYear()).slice(2)}</text>`; }
+  // etiquetas finales anti-solapamiento (orden vertical)
+  const labs=[];
+  series.forEach(s=>{
+    if(s.puntos.length>1){ const d=s.puntos.map(p=>`${X(Date.parse(p.fecha))},${Y(p.valor)}`).join(" ");
+      g+=`<polyline points="${d}" fill="none" stroke="${s.color}" stroke-width="2.6"/>`; }
+    s.puntos.forEach(p=>{ const x=X(Date.parse(p.fecha)), y=Y(p.valor);
+      g+=`<circle cx="${x}" cy="${y}" r="3.6" fill="${s.color}" stroke="#10161F" stroke-width="1.2"/>`; });
+    const lp=s.puntos[s.puntos.length-1];
+    if(lp) labs.push({y:Y(lp.valor), color:s.color, txt:S(lp.valor)});
+  });
+  labs.sort((a,b)=>a.y-b.y);
+  for(let i=1;i<labs.length;i++){ if(labs[i].y-labs[i-1].y<14) labs[i].y=labs[i-1].y+14; }
+  labs.forEach(l=>{ g+=`<text x="${W-padR+8}" y="${l.y+4}" fill="${l.color}" font-size="11.5" font-weight="700" text-anchor="start">${l.txt}</text>`; });
+  el.innerHTML=`<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto" xmlns="http://www.w3.org/2000/svg">${g}</svg>`;
 }
 
 /* ===================== PROYECCION ===================== */
@@ -436,7 +467,7 @@ function renderAll(){ try{
   renderKPIs(); renderComb(); renderAsf(); renderTendencia(); renderProyeccion();
   seedTablero(); recomputeTablero();
   $('subFecha').textContent='datos al '+fmtDate(state.meta.fecha_datos);
-  $('fechaDatos').value=state.meta.fecha_datos||"";
+  $('fechaDatos').textContent=fmtDate(state.meta.fecha_datos||"");
   $('foot').textContent=`Datos al ${fmtDate(state.meta.fecha_datos)} · Fuentes: Petroperú, Repsol, EIA/IEA/OPEP (ago-2026) · CDA / Survial — UNNA Transporte.`;
 }catch(e){console.error(e);} }
 ['inBrent','inGal','inDiesel','inPass'].forEach(id=>$(id).addEventListener('input',recomputeTablero));
@@ -471,7 +502,6 @@ $('btnGuardarAl').addEventListener('click',guardarAl);
 $('btnCopiarTodo').addEventListener('click',()=>{const t=`Para: ${destinatarios.join(', ')}\nAsunto: ${correoActual.asunto}\n\n${correoActual.cuerpo}`;setAlMsg(copiar(t)?'Copiado ✓':'Selecciónalo manualmente.','ok');});
 document.querySelectorAll('#mailPreview [data-copy]').forEach(b=>b.addEventListener('click',()=>setAlMsg(copiar($(b.dataset.copy).value)?'Copiado ✓':'Selecciónalo.','ok')));
 $('btnPrint').addEventListener('click',()=>window.print());
-$('fechaDatos').addEventListener('change',e=>{state.meta.fecha_datos=e.target.value;$('subFecha').textContent='datos al '+fmtDate(state.meta.fecha_datos);});
 
 /* ===================== SYNC data.json ===================== */
 function setSync(t,ok){const s=$('syncStatus'),b=$('syncBox');if(s)s.textContent=t;if(b)b.classList.toggle('ok',!!ok);}

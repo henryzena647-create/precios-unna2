@@ -485,12 +485,22 @@ def load_json(path, default):
         return default
 
 def append_point(hist, key, fecha, valor):
+    """Registra un punto solo cuando el precio CAMBIA (no a diario), para que la
+    línea de tendencia quede limpia y gerencial."""
     serie = hist.setdefault(key, [])
     if valor is None:
         return
-    if not any(p["fecha"] == fecha for p in serie):
-        serie.append({"fecha": fecha, "valor": round(float(valor), 4)})
-        serie.sort(key=lambda p: p["fecha"])
+    valor = round(float(valor), 4)
+    # si ya hay un punto con esa fecha, actualiza su valor en vez de duplicar
+    for p in serie:
+        if p["fecha"] == fecha:
+            p["valor"] = valor
+            return
+    # solo agrega un punto nuevo si el valor cambió respecto al último registrado
+    if serie and abs(serie[-1]["valor"] - valor) < 0.0001:
+        return
+    serie.append({"fecha": fecha, "valor": valor})
+    serie.sort(key=lambda p: p["fecha"])
 
 
 # =====================================================================
