@@ -213,34 +213,55 @@ def scrape_petro_comb():
     latest = pdfs[0]                               # el de mayor número = más reciente
     log(f"Petroperú combustible: {latest}")
     text = pdf_text(download_pdf(latest))
-    log("=== DBG_COMB_INI ===\n" + text + "\n=== DBG_COMB_FIN ===")
+    lines = text.splitlines()
 
-    plantas = []
-    # En la lista COMB, la tabla 'USO INTERNO' trae por planta:
-    #   DIESEL B5 UV S-50 | DIESEL B5 S-50 | GASOHOL PREMIUM | GASOHOL REGULAR
-    for line in text.splitlines():
-        up = line.upper()
+    # GLP (S/kg): primera columna de la tabla principal (solo si el 1er número es < 5)
+    glp = {}
+    for ln in lines:
+        u = ln.upper().strip()
         for plant in PLANTAS_SEDE:
-            if up.strip().startswith(plant):
-                v = nums(line)
-                if len(v) >= 2:
-                    plantas.append({
-                        "planta": plant.capitalize(),
-                        "abastece": PLANTAS_SEDE[plant],
-                        "diesel_uv":   v[0] if len(v) > 0 else None,
-                        "diesel_s50":  v[1] if len(v) > 1 else None,
-                        "gasohol_prem": v[2] if len(v) > 2 else None,
-                        "gasohol_reg":  v[3] if len(v) > 3 else None,
-                        "glp_kg": None,
-                    })
+            if u.startswith(plant):
+                v = nums(ln)
+                if v and v[0] < 5:
+                    glp.setdefault(plant, v[0])
                 break
-    # dedup por planta (quedarse con la primera aparición = tabla uso interno)
+
+    # Tabla USO INTERNO vehicular (ADDENDUM N°1):
+    #   DIESEL B5 UV S-50 | DIESEL B5 S-50 | GASOHOL PREMIUM | GASOHOL REGULAR
+    start = None
+    for i, ln in enumerate(lines):
+        u = ln.upper()
+        if "DIESEL B5 UV" in u and "GASOHOL" in u:   # encabezado de esa tabla
+            start = i
+            break
+    plantas = []
+    if start is not None:
+        for ln in lines[start + 1:]:
+            u = ln.upper().strip()
+            if "IMPUESTO" in u or "LEY DE" in u or "ADDENDUM" in u:
+                break
+            for plant in PLANTAS_SEDE:
+                if u.startswith(plant):
+                    v = nums(ln)
+                    if len(v) >= 2:
+                        plantas.append({
+                            "planta": plant.capitalize(),
+                            "abastece": PLANTAS_SEDE[plant],
+                            "diesel_uv":   v[0],
+                            "diesel_s50":  v[1],
+                            "gasohol_prem": v[2] if len(v) > 2 else None,
+                            "gasohol_reg":  v[3] if len(v) > 3 else None,
+                            "glp_kg": glp.get(plant),
+                        })
+                    break
+    # dedup por planta
     seen, uniq = set(), []
     for p in plantas:
         if p["planta"] not in seen:
             seen.add(p["planta"]); uniq.append(p)
     lista = _find_code(text, r"COMB-\d+-\d+")
-    vig = _find_date(text)
+    mv = re.search(r"VIGENCIA A PARTIR DEL\s*(\d{1,2})[./](\d{1,2})[./](\d{4})", text.upper())
+    vig = f"{mv.group(3)}-{int(mv.group(2)):02d}-{int(mv.group(1)):02d}" if mv else _find_date(text)
     return {"lista": lista or "COMB", "vigente_desde": vig, "plantas": uniq}
 
 
@@ -255,19 +276,39 @@ def scrape_petro_asf():
     latest = pdfs[0]
     log(f"Petroperú asfalto: {latest}")
     text = pdf_text(download_pdf(latest))
-    log("=== DBG_ASF_INI ===\n" + text + "\n=== DBG_ASF_FIN ===")
-    vals = [x for x in nums(text.replace("\n", " ")) if 5 < x < 40]  # precios plausibles
-    banda = {"min": min(vals), "max": max(vals)} if vals else {"min": None, "max": None}
-    # items representativos (mapeo grado exacto: verificar en PDF; se guarda banda)
+
+    # precios reales = números seguidos de "Soles/Gal" (evita fechas como 24.09.2026)
+    precios = [float(x) for x in re.findall(r"(\d+\.\d+)\s*Soles/?\s*Gal", text, flags=re.I)]
+    banda = {"min": min(precios), "max": max(precios)} if precios else {"min": None, "max": None}
+
+    # mapear grado -> precio (Carros Cisterna) por bloques "Despachos ... / Carros Cisterna ..."
+    items_map = {}
+    for blk in re.split(r"Despachos", text)[1:]:
+        hdr = blk.splitlines()[0] if blk.splitlines() else ""
+        grades = re.findall(r"PEN\s*\d+/\d+(?:\s*AL\s*\d+/\d+)?|RC-\d+|MC-\d+", hdr, flags=re.I)
+        m = re.search(r"Carros Cisterna(.*?)(?:Cilindro|$)", blk, flags=re.S)
+        if m:
+            prices = [float(x) for x in re.findall(r"(\d+\.\d+)\s*Soles", m.group(1))]
+            for g, p in zip(grades, prices):
+                items_map[re.sub(r"\s+", " ", g.upper().strip())] = p
+
+    def _g(*keys):
+        for k in keys:
+            kk = re.sub(r"\s+", " ", k.upper().strip())
+            if kk in items_map:
+                return items_map[kk]
+        return None
+
     items = [
-        {"familia": "Cemento asfáltico", "grado": "PEN 40/50 a 120/150", "precio": None},
-        {"familia": "Cemento asfáltico", "grado": "PEN 20/30", "precio": None},
-        {"familia": "Cemento asfáltico", "grado": "PEN 10/20", "precio": banda["min"]},
-        {"familia": "Asfalto líquido", "grado": "RC-70 / RC-250", "precio": None},
-        {"familia": "Asfalto líquido", "grado": "MC-30 / MC-70", "precio": banda["max"]},
+        {"familia": "Cemento asfáltico", "grado": "PEN 40/50 a 120/150", "precio": _g("PEN 40/50 AL 120/150")},
+        {"familia": "Cemento asfáltico", "grado": "PEN 20/30", "precio": _g("PEN 20/30")},
+        {"familia": "Cemento asfáltico", "grado": "PEN 10/20", "precio": _g("PEN 10/20")},
+        {"familia": "Asfalto líquido", "grado": "RC-70 / RC-250", "precio": _g("RC-70", "RC-250")},
+        {"familia": "Asfalto líquido", "grado": "MC-30 / MC-70", "precio": _g("MC-30", "MC-70")},
     ]
     lista = _find_code(text, r"ASFA-\d+-\d+")
-    vig = _find_date(text)
+    mv = re.search(r"VIGENTE DESDE[:\s]*(\d{1,2})[/.](\d{1,2})[/.](\d{4})", text.upper())
+    vig = f"{mv.group(3)}-{int(mv.group(2)):02d}-{int(mv.group(1)):02d}" if mv else _find_date(text)
     return {"lista": lista or "ASFA", "vigente_desde": vig,
             "plantas": "Talara / Conchán", "items": items, "banda": banda}
 
