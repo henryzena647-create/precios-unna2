@@ -5168,3 +5168,11 @@ TURBO A-1 | 7.08 |  |  | 7.0800 | 18% | GAL | USD | 8.35440
 2026-11-25T20:09:21  [BRENT] EIA RBRTE mensual: 12 meses (2025-11 → 2026-10)
 2026-11-25T20:09:21  OK -> /home/runner/work/precios-unna2/precios-unna2/data.json  (fecha_datos=2026-11-25)
 2026-11-25T20:09:21  Sin cambios de precio respecto a la corrida anterior.
+2026-11-25T20:13:24  Petroperú combustible: https://www.petroperu.com.pe/Storage/tbl_listas_de_precio/fld_1177_Archivo_file/1751-r9Zf2Zs7Kc1Xy9W.pdf
+2026-11-25T20:13:28  Petroperú asfalto: https://www.petroperu.com.pe/Storage/tbl_listas_de_precio/fld_1177_Archivo_file/1737-j1Vg2Wk1Xg7Bo4H.pdf
+2026-11-25T20:13:42  Repsol asfalto: https://www.repsol.pe/content/dam/repsol-paises/pe/asfaltos/Precio%20de%20Lista%20Asfaltos-%20Recosac%20101026.pdf
+2026-11-25T20:13:55  Repsol combustible: diesel_uv=21.6766 gasohol_reg=15.62934 prem=16.34583 glp=2.4072
+2026-11-25T20:13:55  [BRENT] EIA RBRTE spot = 91.8 (2026-11-24)
+2026-11-25T20:13:56  [BRENT] EIA RBRTE mensual: 12 meses (2025-11 → 2026-10)
+2026-11-25T20:13:56  OK -> /home/runner/work/precios-unna2/precios-unna2/data.json  (fecha_datos=2026-11-25)
+2026-11-25T20:13:56  Sin cambios de precio respecto a la corrida anterior.

@@ -1,7 +1,7 @@
 {
   "meta": {
     "fecha_datos": "2026-11-25",
-    "generado": "2026-11-25T20:09"
+    "generado": "2026-11-25T20:13"
   },
   "combustible": {
     "unidad": "S/ galón · con impuestos (sin FISE ni descuentos) · uso interno S-50",
@@ -16,7 +16,7 @@
           "diesel_s50": 20.7444,
           "gasohol_prem": 17.2379,
           "gasohol_reg": 14.6226,
-          "glp_kg": 3.6462
+          "glp_kg": 3.8468
         },
         {
           "planta": "Piura",
@@ -548,36 +548,40 @@
       {
         "fecha": "2026-10-15",
         "valor": 123.93
+      },
+      {
+        "fecha": "2026-11-24",
+        "valor": 91.8
       }
     ],
     "brent_proj": [
       {
-        "fecha": "2026-10-15",
-        "valor": 123.93
+        "fecha": "2026-11-24",
+        "valor": 91.8
       },
       {
         "fecha": "2026-12-15",
-        "valor": 123.93
+        "valor": 91.8
       },
       {
         "fecha": "2027-01-15",
-        "valor": 116.61
+        "valor": 89.83
       },
       {
         "fecha": "2027-02-15",
-        "valor": 109.29
+        "valor": 87.87
       },
       {
         "fecha": "2027-03-15",
-        "valor": 102.97
+        "valor": 86.9
       },
       {
         "fecha": "2027-04-15",
-        "valor": 96.64
+        "valor": 85.93
       },
       {
         "fecha": "2027-05-15",
-        "valor": 90.32
+        "valor": 84.97
       }
     ],
     "diesel_proj": [
@@ -591,23 +595,23 @@
       },
       {
         "fecha": "2027-01-15",
-        "valor": 16.45
+        "valor": 19.12
       },
       {
         "fecha": "2027-02-15",
-        "valor": 12.79
+        "valor": 18.14
       },
       {
         "fecha": "2027-03-15",
-        "valor": 9.63
+        "valor": 17.66
       },
       {
         "fecha": "2027-04-15",
-        "valor": 6.46
+        "valor": 17.17
       },
       {
         "fecha": "2027-05-15",
-        "valor": 3.3
+        "valor": 16.69
       }
     ]
   },
