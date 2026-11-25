@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dashboard Integrado de Precios y Proyección · CDA / Survial</title>
+<title>Dashboard Integrado de Precios y Proyección · CDA</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=Inter:wght@400;500;600&family=Archivo+Narrow:wght@600;700&display=swap" rel="stylesheet">
@@ -128,7 +128,7 @@
 </head>
 <body>
 <div class="topbar"><div class="inner">
-  <div><p class="eyebrow">UNNA Transporte · CDA / Survial</p>
+  <div><p class="eyebrow">UNNA Transporte · CDA</p>
   <h1>Dashboard integrado — Precios & Proyección</h1>
   <div class="sub">Petroperú / Repsol · Crudo Brent · Indicador de compras · <span id="subFecha"></span></div></div>
   <div class="toolbar">
@@ -144,7 +144,6 @@
   <button class="tabbtn active" data-tab="precios">Precios de lista</button>
   <button class="tabbtn" data-tab="tendencia">Tendencia</button>
   <button class="tabbtn" data-tab="proyeccion">Proyección 6 meses</button>
-  <button class="tabbtn" data-tab="tablero">Tablero gerencial</button>
 </div></div>
 
 <div class="wrap">
@@ -190,42 +189,6 @@
       <div class="sec-head"><span class="num">06</span><h2>Qué dice cada institución</h2></div>
       <table id="tblInst"></table>
       <div class="note">Fuentes: EIA STEO (nov-2026), IEA OMR, OPEP MOMR y bancos de inversión vía prensa financiera. Brent real: EIA Open Data (serie RBRTE), actualizado automáticamente.</div>
-    </section>
-  </div>
-
-  <!-- TAB TABLERO -->
-  <div class="tab" id="tab-tablero">
-    <div class="verdict" id="verdict" style="margin-top:24px">
-      <div><div class="lab">Señal del período</div><div class="big" id="vSignal">—</div><div class="win" id="vWin"></div></div>
-      <div class="rec" id="vRec"></div>
-    </div>
-    <div class="kpis">
-      <div class="kpi"><div class="lab">Brent actual</div><div class="val" id="kBrent">—</div><div class="foot" id="kBrentFoot"></div></div>
-      <div class="kpi"><div class="lab">Zona / escenario</div><div class="val" id="kZona">—</div><div class="foot">según umbrales</div></div>
-      <div class="kpi steel"><div class="lab">Factura diésel · mes</div><div class="val" id="kFactura">—</div><div class="foot" id="kFacturaFoot"></div></div>
-      <div class="kpi steel"><div class="lab">Exposición entre escenarios</div><div class="val" id="kExpo">—</div><div class="foot">rango factura mensual</div></div>
-    </div>
-    <section>
-      <div class="sec-head"><span class="num">07</span><h2>Supuestos (editables)</h2></div>
-      <div class="params">
-        <div class="field"><label>Brent actual (US$/bbl)</label><input id="inBrent" type="number" step="0.1"><div class="hint">referencia de mercado</div></div>
-        <div class="field"><label>Consumo mensual diésel (gal)</label><input id="inGal" type="number" step="1000" value="40000"><div class="hint">ajusta a tu volumen real</div></div>
-        <div class="field"><label>Precio diésel actual (S/gal)</label><input id="inDiesel" type="number" step="0.01"><div class="hint">de la lista Petroperú</div></div>
-        <div class="field"><label>Traslado crudo→diésel (%)</label><input id="inPass" type="number" step="5" value="60"><div class="hint">cuánto del Brent pasa al local</div></div>
-      </div>
-    </section>
-    <section>
-      <div class="sec-head"><span class="num">08</span><h2>Termómetro del Brent</h2></div>
-      <div class="thermo"><h3>Posición actual frente a los umbrales</h3><div class="bar" id="bar"></div><div style="position:relative"><div class="scale" id="scale"></div></div></div>
-    </section>
-    <section>
-      <div class="sec-head"><span class="num">09</span><h2>Impacto en la factura mensual</h2></div>
-      <table id="tblImpacto"></table>
-    </section>
-    <section>
-      <div class="sec-head"><span class="num">10</span><h2>Lectura ejecutiva</h2></div>
-      <div class="narr" id="narrativa"></div>
-      <div class="disc"><b>Nota:</b> el crudo no se traslada 1:1 al diésel/asfalto (rezago, impuestos, margen, tipo de cambio USD/PEN). Umbrales y % de traslado son supuestos de planificación, no asesoría de inversión. Contrastar con las listas reales.</div>
     </section>
   </div>
 
@@ -289,9 +252,7 @@ const DATA = {
   ]},
   proyeccion:{
     brent_spot:null, brent_fecha:null,
-    brent_hist:[], brent_proj:[], diesel_proj:[],
-    umbral_alza:100, umbral_base:85,
-    esc_ref:{base:90,alza:105,baja:80}
+    brent_hist:[], brent_proj:[], diesel_proj:[], asfalto_proj:[]
   },
   alertas:{ destinatarios:[], webhook_url:"" }
 };
@@ -370,48 +331,77 @@ function lineChart(el, series, opts){
   });
   el.innerHTML=`<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto" xmlns="http://www.w3.org/2000/svg">${g}</svg>`;
 }
-function renderTendencia(){
-  const tl=state.timeline;
-  const series=tl.series.map(s=>({color:s.color,etiqueta:s.etiqueta,dash:false,
-    puntos:(s.puntos||[]).slice().sort((a,b)=>Date.parse(a.fecha)-Date.parse(b.fecha))}));
-  // proyección del diésel Petroperú (línea punteada, mismo gráfico)
-  const dproj=(state.proyeccion&&state.proyeccion.diesel_proj)||[];
-  if(dproj.length>1){ series.push({color:"#E9A020",etiqueta:"Proyección diésel (6 meses)",dash:true,
-    puntos:dproj.slice().sort((a,b)=>Date.parse(a.fecha)-Date.parse(b.fecha))}); }
-  $('tl-legend').innerHTML=series.map(s=>`<div class="it"><span class="sw" style="background:${s.color}${s.dash?';opacity:.6;border-bottom:2px dashed '+s.color:''}"></span>${s.etiqueta}</div>`).join("");
-  const all=series.flatMap(s=>s.puntos);
-  const el=$('tl-chart');
-  if(all.length===0){ el.innerHTML='<div style="color:#9FB0C0;font-size:12px;padding:8px">Sin datos todavía.</div>'; return; }
-  const W=920,H=330,padL=56,padR=78,padT=18,padB=42;
+const COL_PETRO="#E9A020", COL_REPSOL="#4A90D9";   // color fijo por proveedor
+function trendPanel(title, series, tMin, tMax){
   const mm=["ene","feb","mar","abr","may","jun","jul","ago","set","oct","nov","dic"];
-  let tMin=Math.min(...all.map(p=>Date.parse(p.fecha))), tMax=Math.max(...all.map(p=>Date.parse(p.fecha)));
-  if(tMin===tMax){ tMin-=15*864e5; tMax+=15*864e5; }
-  let vMin=Math.min(...all.map(p=>p.valor)), vMax=Math.max(...all.map(p=>p.valor));
-  const vpad=Math.max((vMax-vMin)*0.18,0.6); vMin=Math.floor(vMin-vpad); vMax=Math.ceil(vMax+vpad);
+  const W=920,H=214,padL=48,padR=112,padT=32,padB=28;
+  const pts=series.flatMap(s=>s.puntos);
+  if(pts.length===0) return `<div style="color:#9FB0C0;font-size:12px;padding:8px">${title}: sin datos todavía.</div>`;
+  let vMin=Math.min(...pts.map(p=>p.valor)), vMax=Math.max(...pts.map(p=>p.valor));
+  const vpad=Math.max((vMax-vMin)*0.22,0.4); vMin=Math.floor(vMin-vpad); vMax=Math.ceil(vMax+vpad);
   const X=t=>padL+((t-tMin)/((tMax-tMin)||1))*(W-padL-padR);
   const Y=v=>padT+(1-(v-vMin)/((vMax-vMin)||1))*(H-padT-padB);
-  let g="";
-  for(let k=0;k<=4;k++){ const v=vMin+(vMax-vMin)*k/4, y=Y(v);
+  let g=`<text x="${padL}" y="17" fill="#EAEFF4" font-size="13" font-weight="700" font-family="Archivo,sans-serif">${title}</text>`;
+  // zona de proyección: desde el último dato real hasta el final (une la proyección al histórico)
+  const realPts=series.filter(s=>!s.dash).flatMap(s=>s.puntos);
+  const realMax=realPts.length?Math.max(...realPts.map(p=>Date.parse(p.fecha))):tMax;
+  const hasProj=series.some(s=>s.dash && s.puntos.length>1);
+  if(hasProj && realMax<tMax){ const xb=X(realMax);
+    g+=`<rect x="${xb}" y="${padT}" width="${W-padR-xb}" height="${H-padT-padB}" fill="${COL_PETRO}" opacity="0.06"/>`;
+    g+=`<line x1="${xb}" y1="${padT}" x2="${xb}" y2="${H-padB}" stroke="${COL_PETRO}" stroke-width="1" stroke-dasharray="3 3" opacity="0.55"/>`;
+    g+=`<text x="${xb+5}" y="${padT+11}" fill="${COL_PETRO}" font-size="9.5" font-weight="700">proyección →</text>`; }
+  for(let k=0;k<=3;k++){ const v=vMin+(vMax-vMin)*k/3, y=Y(v);
     g+=`<line x1="${padL}" y1="${y}" x2="${W-padR}" y2="${y}" stroke="#26313E"/>`;
-    g+=`<text x="${padL-8}" y="${y+4}" fill="#8698A8" font-size="11" text-anchor="end">${S0(v)}</text>`; }
+    g+=`<text x="${padL-8}" y="${y+4}" fill="#8698A8" font-size="10.5" text-anchor="end">${S0(v)}</text>`; }
   const nt=5;
-  for(let k=0;k<=nt;k++){ const t=tMin+(tMax-tMin)*k/nt, x=X(t), dt=new Date(t);
-    g+=`<text x="${x}" y="${H-14}" fill="#8698A8" font-size="10.5" text-anchor="middle">${mm[dt.getUTCMonth()]} ${String(dt.getUTCFullYear()).slice(2)}</text>`; }
-  // etiquetas finales anti-solapamiento (orden vertical)
+  for(let k=0;k<=nt;k++){ const t=tMin+(tMax-tMin)*k/nt, x=X(t), d=new Date(t);
+    g+=`<text x="${x}" y="${H-10}" fill="#8698A8" font-size="10" text-anchor="middle">${mm[d.getUTCMonth()]} ${String(d.getUTCFullYear()).slice(2)}</text>`; }
   const labs=[];
   series.forEach(s=>{
+    const dense=s.puntos.length>14;
     if(s.puntos.length>1){ const d=s.puntos.map(p=>`${X(Date.parse(p.fecha))},${Y(p.valor)}`).join(" ");
-      g+=`<polyline points="${d}" fill="none" stroke="${s.color}" stroke-width="${s.dash?2.2:2.6}" ${s.dash?'stroke-dasharray="6 4" opacity="0.85"':''}/>`; }
-    s.puntos.forEach((p,i)=>{ const x=X(Date.parse(p.fecha)), y=Y(p.valor);
-      if(s.dash){ if(i>0) g+=`<circle cx="${x}" cy="${y}" r="2.6" fill="none" stroke="${s.color}" stroke-width="1.5"/>`; }
-      else g+=`<circle cx="${x}" cy="${y}" r="3.6" fill="${s.color}" stroke="#10161F" stroke-width="1.2"/>`; });
+      g+=`<polyline points="${d}" fill="none" stroke="${s.color}" stroke-width="${s.dash?2:2.6}" stroke-linejoin="round" stroke-linecap="round" ${s.dash?'stroke-dasharray="6 4" opacity="0.8"':''}/>`; }
+    s.puntos.forEach((p,i)=>{ const x=X(Date.parse(p.fecha)), y=Y(p.valor), isLast=i===s.puntos.length-1;
+      if(s.dash){ if(isLast) g+=`<circle cx="${x}" cy="${y}" r="3" fill="none" stroke="${s.color}" stroke-width="1.6"/>`; }
+      else if(!dense||isLast) g+=`<circle cx="${x}" cy="${y}" r="${isLast?4:3.2}" fill="${s.color}" stroke="#10161F" stroke-width="1.2"/>`; });
     const lp=s.puntos[s.puntos.length-1];
-    if(lp) labs.push({y:Y(lp.valor), color:s.color, txt:S(lp.valor)});
+    if(lp) labs.push({y:Y(lp.valor), color:s.color, txt:`${s.short} ${S(lp.valor)}`});
   });
   labs.sort((a,b)=>a.y-b.y);
-  for(let i=1;i<labs.length;i++){ if(labs[i].y-labs[i-1].y<14) labs[i].y=labs[i-1].y+14; }
-  labs.forEach(l=>{ g+=`<text x="${W-padR+8}" y="${l.y+4}" fill="${l.color}" font-size="11.5" font-weight="700" text-anchor="start">${l.txt}</text>`; });
-  el.innerHTML=`<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto" xmlns="http://www.w3.org/2000/svg">${g}</svg>`;
+  for(let i=1;i<labs.length;i++){ if(labs[i].y-labs[i-1].y<13) labs[i].y=labs[i-1].y+13; }
+  labs.forEach(l=>{ g+=`<text x="${W-padR+8}" y="${l.y+4}" fill="${l.color}" font-size="10.5" font-weight="700">${l.txt}</text>`; });
+  return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto" xmlns="http://www.w3.org/2000/svg">${g}</svg>`;
+}
+function renderTendencia(){
+  const tl=state.timeline, py=state.proyeccion||{};
+  const srt=a=>(a||[]).slice().sort((x,y)=>Date.parse(x.fecha)-Date.parse(y.fecha));
+  const byClave=k=>{ const s=tl.series.find(x=>x.clave===k); return s?srt(s.puntos):[]; };
+  // color = proveedor (ámbar Petroperú / azul Repsol); panel = producto
+  const diesel=[
+    {short:"Petroperú", color:COL_PETRO, puntos:byClave('diesel_petroperu')},
+    {short:"Repsol",    color:COL_REPSOL, puntos:byClave('diesel_repsol')},
+  ];
+  const dproj=srt(py.diesel_proj);
+  if(dproj.length>1) diesel.push({short:"Proy.", color:COL_PETRO, dash:true, puntos:dproj});
+  const asf=[
+    {short:"Petroperú", color:COL_PETRO, puntos:byClave('asfalto_petroperu')},
+    {short:"Repsol",    color:COL_REPSOL, puntos:byClave('asfalto_repsol')},
+  ];
+  const aproj=srt(py.asfalto_proj);
+  if(aproj.length>1) asf.push({short:"Proy.", color:COL_PETRO, dash:true, puntos:aproj});
+  // convención de color (una sola vez)
+  $('tl-legend').innerHTML=
+    `<div class="it"><span class="sw" style="background:${COL_PETRO}"></span>Petroperú</div>`+
+    `<div class="it"><span class="sw" style="background:${COL_REPSOL}"></span>Repsol</div>`+
+    `<div class="it"><span class="sw" style="background:${COL_PETRO};opacity:.6;border-bottom:2px dashed ${COL_PETRO}"></span>Proyección (punteado)</div>`;
+  const all=[...diesel,...asf].flatMap(s=>s.puntos);
+  const el=$('tl-chart');
+  if(all.length===0){ el.innerHTML='<div style="color:#9FB0C0;font-size:12px;padding:8px">Sin datos todavía.</div>'; return; }
+  let tMin=Math.min(...all.map(p=>Date.parse(p.fecha))), tMax=Math.max(...all.map(p=>Date.parse(p.fecha)));
+  if(tMin===tMax){ tMin-=15*864e5; tMax+=15*864e5; }
+  el.innerHTML = trendPanel("Diésel B5 UV S-50 · S/ galón", diesel, tMin, tMax)
+    + '<div style="height:12px"></div>'
+    + trendPanel("Cemento asfáltico · S/ galón", asf, tMin, tMax);
 }
 
 /* ===================== PROYECCION ===================== */
@@ -474,54 +464,13 @@ function renderProyeccion(){
   $('tblInst').innerHTML=`<thead><tr><th>Fuente</th><th>Visión</th><th>Sesgo</th></tr></thead><tbody>`+inst.map(r=>`<tr><td><b>${r[0]}</b></td><td style="font-size:12px">${r[1]}</td><td style="font-size:12px">${r[2]}</td></tr>`).join("")+`</tbody>`;
 }
 
-/* ===================== TABLERO ===================== */
-let tableroTouched=false;
-function seedTablero(){
-  const p=state.proyeccion;
-  const pls=state.combustible.petroperu.plantas||[];
-  const cal=pls.find(x=>/callao/i.test(x.planta))||pls.find(x=>/conch/i.test(x.planta))||pls[0];
-  // mientras el usuario no edite, el tablero refleja el Brent y el diésel reales
-  if(!tableroTouched){
-    if(p.brent_spot!=null) $('inBrent').value=p.brent_spot;
-    if(cal&&cal.diesel_uv) $('inDiesel').value=Number(cal.diesel_uv).toFixed(2);
-  }
-}
-function zona(b){ const p=state.proyeccion; return b>p.umbral_alza?'alza':(b>=p.umbral_base?'base':'baja'); }
-function recomputeTablero(){
-  const p=state.proyeccion, BMIN=55,BMAX=115;
-  const brent=parseFloat($('inBrent').value)||0, gal=parseFloat($('inGal').value)||0, diesel=parseFloat($('inDiesel').value)||0, pass=(parseFloat($('inPass').value)||0)/100;
-  const z=zona(brent), facturaNow=diesel*gal;
-  const rows=[['alza','Alza',p.esc_ref.alza],['base','Base',p.esc_ref.base],['baja','Baja',p.esc_ref.baja]];
-  const calc=rows.map(([cls,nom,b])=>{const pct=(b-brent)/(brent||1);const de=diesel*(1+pass*pct);const c=de*gal;return{cls,nom,b,de,c,delta:c-facturaNow};});
-  const costs=calc.map(c=>c.c), expo=Math.max(...costs)-Math.min(...costs);
-  $('kBrent').textContent=U(brent); $('kBrentFoot').textContent='zona '+z;
-  $('kZona').textContent=z.toUpperCase();
-  $('kFactura').textContent=S0(facturaNow); $('kFacturaFoot').textContent=`${gal.toLocaleString('es-PE')} gal × ${S(diesel)}`;
-  $('kExpo').textContent='± '+S0(expo);
-  const v=$('verdict'); v.className='verdict '+z; let sg,rec,win;
-  if(z==='alza'){sg='ALZA';win='Actuar esta semana';rec='Presión al alza en diésel y asfalto. Asegurar/adelantar compras, evaluar precio cerrado o coberturas y subir stock de seguridad.';}
-  else if(z==='base'){sg='BASE';win='Revisión quincenal';rec='Dentro de lo esperado. Planificación normal con seguimiento de las listas y del STEO.'+(brent>=90?' Brent en borde superior: vigilar.':'');}
-  else{sg='BAJA';win='Sin urgencia';rec='Posible alivio. Diferir compras no urgentes, renegociar y revisar el presupuesto a la baja.';}
-  $('vSignal').textContent=sg; $('vRec').textContent=rec; $('vWin').textContent=win;
-  const pos=Math.max(0,Math.min(1,(brent-BMIN)/(BMAX-BMIN)))*100;
-  const wB=((p.umbral_base-BMIN)/(BMAX-BMIN))*100, wBa=((p.umbral_alza-p.umbral_base)/(BMAX-BMIN))*100;
-  $('bar').innerHTML=`<div class="z baja" style="width:${wB}%"></div><div class="z base" style="width:${wBa}%"></div><div class="z alza" style="width:${100-wB-wBa}%"></div><div class="marker" style="left:${pos}%"><div class="pin">${U(brent)}</div><div class="stem"></div></div>`;
-  $('scale').innerHTML=[BMIN,p.umbral_base,p.umbral_alza,BMAX].map(v=>`<span style="left:${((v-BMIN)/(BMAX-BMIN))*100}%">$${v}</span>`).join("");
-  $('tblImpacto').innerHTML=`<thead><tr><th>Escenario</th><th class="num">Brent ref</th><th class="num">Diésel esperado</th><th class="num">Factura mensual</th><th class="num">Δ vs actual</th></tr></thead><tbody>`+
-    calc.map(c=>{const up=c.delta>0,ar=Math.abs(c.delta)<1?'':(up?'▲':'▼');return `<tr class="row${c.cls}"><td><span class="tag ${c.cls}">${c.nom}</span></td><td class="num">${U(c.b)}</td><td class="num">${S(c.de)}</td><td class="num">${S0(c.c)}</td><td class="num delta ${up?'up':'down'}">${ar} ${S0(Math.abs(c.delta))}</td></tr>`;}).join("")+`</tbody>`;
-  const alza=calc.find(c=>c.cls==='alza'),baja=calc.find(c=>c.cls==='baja');
-  $('narrativa').innerHTML=`Con el Brent en <b>${U(brent)}</b>, la operación está en <b>zona ${z.toUpperCase()}</b>. A <b>${gal.toLocaleString('es-PE')} gal/mes</b>, la factura de diésel hoy es <b>${S0(facturaNow)}</b>. En <b>alza</b> (Brent ${U(alza.b)}) subiría a <b>${S0(alza.c)}</b> (${alza.delta>=0?'+':''}${S0(alza.delta)}); en <b>baja</b> (Brent ${U(baja.b)}) caería a <b>${S0(baja.c)}</b> (${S0(baja.delta)}). La exposición del período es de <b>± ${S0(expo)}</b> mensuales — ese es el monto a prever o cubrir.`;
-}
-
 /* ===================== RENDER GLOBAL ===================== */
 function renderAll(){ try{
   renderKPIs(); renderComb(); renderAsf(); renderTendencia(); renderProyeccion();
-  seedTablero(); recomputeTablero();
   $('subFecha').textContent='datos al '+fmtDate(state.meta.fecha_datos);
   $('fechaDatos').textContent=fmtDate(state.meta.fecha_datos||"");
-  $('foot').textContent=`Datos al ${fmtDate(state.meta.fecha_datos)} · Fuentes: Petroperú, Repsol, EIA (Brent RBRTE) · CDA / Survial — UNNA Transporte.`;
+  $('foot').textContent=`Datos al ${fmtDate(state.meta.fecha_datos)} · Fuentes: Petroperú, Repsol, EIA (Brent RBRTE) · CDA — UNNA Transporte.`;
 }catch(e){console.error(e);} }
-['inBrent','inGal','inDiesel','inPass'].forEach(id=>$(id).addEventListener('input',()=>{tableroTouched=true;recomputeTablero();}));
 
 /* ===================== TOAST / ALERTAS ===================== */
 function toast(m){const t=document.createElement('div');t.className='toast';t.textContent=m;$('toaster').appendChild(t);setTimeout(()=>{t.style.transition='.3s';t.style.opacity='0';setTimeout(()=>t.remove(),300);},4000);}
@@ -537,8 +486,8 @@ function resumenPrecios(){const c=state.combustible,a=state.asfalto,igv=a.igv??0
 function copiar(t){try{if(navigator.clipboard){navigator.clipboard.writeText(t);return true;}}catch(e){}try{const ta=document.createElement('textarea');ta.value=t;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);return true;}catch(e){return false;}}
 function prepararCorreo(a,c){correoActual={asunto:a,cuerpo:c};$('pvTo').value=destinatarios.join(', ');$('pvSubj').value=a;$('pvBody').value=c;$('mailPreview').style.display='block';}
 async function enviarPorFlujo(a,c){const url=($('pwaUrl').value||(state.alertas&&state.alertas.webhook_url)||'').trim();if(!url)return false;try{await fetch(url,{method:'POST',mode:'no-cors',body:JSON.stringify({asunto:a,cuerpo:c,destinatarios:destinatarios.join(';')})});return true;}catch(e){return false;}}
-async function enviarPrueba(){if(!destinatarios.length){setAlMsg('Agrega un correo.','err');return;}const a='[Prueba] Alertas de precios — CDA / Survial',c='Correo de prueba. Si lo recibes, las alertas quedan activas.';const f=await enviarPorFlujo(a,c);prepararCorreo(a,c);setAlMsg(f?'Solicitud enviada al flujo; revisa tu bandeja o copia abajo.':'Copia el correo de abajo y pégalo en Outlook.','ok');}
-async function enviarResumen(){if(!destinatarios.length){setAlMsg('Agrega un correo.','err');return;}const a=`Precios de lista al ${fmtDate(state.meta.fecha_datos)} — CDA / Survial`,c=resumenPrecios();const f=await enviarPorFlujo(a,c);prepararCorreo(a,c);setAlMsg(f?'Resumen enviado al flujo; o cópialo abajo.':'Copia el resumen de abajo.','ok');}
+async function enviarPrueba(){if(!destinatarios.length){setAlMsg('Agrega un correo.','err');return;}const a='[Prueba] Alertas de precios — CDA',c='Correo de prueba. Si lo recibes, las alertas quedan activas.';const f=await enviarPorFlujo(a,c);prepararCorreo(a,c);setAlMsg(f?'Solicitud enviada al flujo; revisa tu bandeja o copia abajo.':'Copia el correo de abajo y pégalo en Outlook.','ok');}
+async function enviarResumen(){if(!destinatarios.length){setAlMsg('Agrega un correo.','err');return;}const a=`Precios de lista al ${fmtDate(state.meta.fecha_datos)} — CDA`,c=resumenPrecios();const f=await enviarPorFlujo(a,c);prepararCorreo(a,c);setAlMsg(f?'Resumen enviado al flujo; o cópialo abajo.':'Copia el resumen de abajo.','ok');}
 async function guardarAl(){const url=($('pwaUrl').value||'').trim();state.alertas=state.alertas||{};state.alertas.destinatarios=destinatarios.slice();if(url)state.alertas.webhook_url=url;
   try{const r=await fetch('./guardar-alertas',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({destinatarios,webhook_url:url})});if(r.ok){setAlMsg('Guardado para alertas automáticas ✓','ok');toast('Configuración guardada');return;}}catch(e){}
   setAlMsg('Guardado en esta sesión. Para alertas automáticas, cárgalo en el pipeline.','ok');}

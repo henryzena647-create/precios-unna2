@@ -512,9 +512,10 @@ PROYECCION_BASE = {
     # bajando a ~US$86 promedio en 2027 (por debajo de 90 en el 2T27).
     # Trayectoria de los próximos 6 meses (niveles US$/bbl, se fechan hacia adelante).
     "proj_valores": [98, 95, 92, 90, 88, 86],
-    "passthrough": 0.5,                       # traslado Brent -> diésel local (proyección)
-    "umbral_alza": 100, "umbral_base": 85,    # para el tablero gerencial
-    "esc_ref": {"base": 90, "alza": 105, "baja": 80},
+    # Elasticidad del precio local al Brent (traslado PROPORCIONAL y parcial:
+    # el precio de lista lleva impuestos, margen y flete que amortiguan el crudo).
+    "elas_diesel": 0.55,   # el diésel traslada ~la mitad de la variación % del Brent
+    "elas_asf":    0.35,   # el asfalto (residual pesado) traslada menos y más lento
 }
 
 
@@ -672,16 +673,18 @@ def assemble(comb_petro, asf_petro, asf_repsol, comb_repsol, brent, prev):
             for i, (f, v) in enumerate(zip(fechas_fut, niveles))]
     proyeccion["brent_proj"] = [{"fecha": ancla_f, "valor": round(ancla, 2)}] + proj
 
-    # Proyección del diésel local (línea punteada en Tendencia) por traslado del Brent
-    dpp = hist.get("diesel_petroperu", [])
-    if dpp:
-        d_ancla = dpp[-1]["valor"]
-        pt = PROYECCION_BASE["passthrough"]
-        proyeccion["diesel_proj"] = ([{"fecha": dpp[-1]["fecha"], "valor": d_ancla}] +
-            [{"fecha": p["fecha"], "valor": round(d_ancla + (p["valor"] - ancla) * pt, 2)}
-             for p in proj])
-    else:
-        proyeccion["diesel_proj"] = []
+    # Proyección de los precios locales (líneas punteadas en Tendencia) por traslado
+    # PROPORCIONAL del Brent: precio_fut = precio_hoy * (1 + elas * (Brent_fut/Brent_hoy - 1)).
+    def _proj_local(hist_key, elas):
+        serie = hist.get(hist_key, [])
+        if not serie or not ancla:
+            return []
+        a = serie[-1]["valor"]
+        return ([{"fecha": serie[-1]["fecha"], "valor": a}] +
+                [{"fecha": p["fecha"], "valor": round(a * (1 + elas * (p["valor"]/ancla - 1)), 2)}
+                 for p in proj])
+    proyeccion["diesel_proj"]  = _proj_local("diesel_petroperu", PROYECCION_BASE["elas_diesel"])
+    proyeccion["asfalto_proj"] = _proj_local("asfalto_petroperu", PROYECCION_BASE["elas_asf"])
 
     # destinatarios / URL de Power Automate guardados desde el dashboard
     alertas = load_json(CONFIG_ALERTAS, {"destinatarios": [], "webhook_url": ""})
