@@ -646,25 +646,35 @@ def assemble(comb_petro, asf_petro, asf_repsol, comb_repsol, brent, prev):
 
     # ---------------- Proyección: UNA línea = realidad (Brent mensual) + 6 meses hacia adelante ----------------
     proyeccion = dict(PROYECCION_BASE)
-    proyeccion["brent_spot"]  = brent.get("spot")
+    spot   = brent.get("spot")
+    spot_f = brent.get("fecha") or hoy
+    proyeccion["brent_spot"]  = spot
     proyeccion["brent_fecha"] = brent.get("fecha")
-    proyeccion["brent_hist"]  = brent.get("hist", [])          # realidad (línea continua)
 
-    # trayectoria futura anclada al último dato real de Brent
-    base_hist = brent.get("hist", [])
-    ancla = base_hist[-1]["valor"] if base_hist else (brent.get("spot") or 90.0)
-    fechas_fut = _meses_adelante(len(PROYECCION_BASE["proj_valores"]))
+    # Línea de realidad = histórico mensual + el spot de hoy como último punto
+    # (el mes en curso aún no cierra; el spot es el valor "ahora" más confiable).
+    base_hist = [dict(p) for p in brent.get("hist", [])]
+    if spot is not None:
+        if base_hist and base_hist[-1]["fecha"][:7] == spot_f[:7]:
+            base_hist[-1] = {"fecha": spot_f, "valor": spot}   # reemplaza el mes en curso
+        else:
+            base_hist.append({"fecha": spot_f, "valor": spot})
+    proyeccion["brent_hist"] = base_hist
+
+    # Trayectoria futura anclada al SPOT actual (no al último promedio mensual,
+    # que puede divergir del precio de hoy). Decae según la forma base de la EIA.
+    ancla   = spot if spot is not None else (base_hist[-1]["valor"] if base_hist else 90.0)
+    ancla_f = base_hist[-1]["fecha"] if base_hist else spot_f
     niveles = PROYECCION_BASE["proj_valores"]
-    # suaviza el empalme: desplaza la trayectoria para que arranque desde el último real
-    ajuste = ancla - niveles[0]
+    fechas_fut = _meses_adelante(len(niveles))
+    ajuste = ancla - niveles[0]                                # empata el arranque con el spot
     proj = [{"fecha": f, "valor": round(v + ajuste * (1 - i/len(niveles)), 2)}
             for i, (f, v) in enumerate(zip(fechas_fut, niveles))]
-    # el primer punto proyectado se une a la realidad (mismo ancla el mes previo)
-    proyeccion["brent_proj"] = ([{"fecha": base_hist[-1]["fecha"], "valor": ancla}] if base_hist else []) + proj
+    proyeccion["brent_proj"] = [{"fecha": ancla_f, "valor": round(ancla, 2)}] + proj
 
-    # proyección del diésel local (línea punteada en Tendencia) por traslado del Brent
+    # Proyección del diésel local (línea punteada en Tendencia) por traslado del Brent
     dpp = hist.get("diesel_petroperu", [])
-    if dpp and base_hist:
+    if dpp:
         d_ancla = dpp[-1]["valor"]
         pt = PROYECCION_BASE["passthrough"]
         proyeccion["diesel_proj"] = ([{"fecha": dpp[-1]["fecha"], "valor": d_ancla}] +
