@@ -1,21 +1,21 @@
 {
   "meta": {
     "fecha_datos": "2026-11-27",
-    "generado": "2026-11-27T06:42"
+    "generado": "2026-11-27T20:40"
   },
   "combustible": {
     "unidad": "S/ galón · con impuestos (sin FISE ni descuentos) · uso interno S-50",
     "petroperu": {
-      "lista": "COMB-84-2026",
-      "vigente_desde": "2026-11-25",
+      "lista": "COMB-85-2026",
+      "vigente_desde": "2026-11-27",
       "plantas": [
         {
           "planta": "Talara",
           "abastece": "Ruta norte / Canchaque",
           "diesel_uv": 19.175,
           "diesel_s50": 20.7444,
-          "gasohol_prem": 17.2379,
-          "gasohol_reg": 14.6226,
+          "gasohol_prem": 18.0918,
+          "gasohol_reg": 15.0304,
           "glp_kg": 3.8468
         },
         {
@@ -23,8 +23,8 @@
           "abastece": "Canchaque",
           "diesel_uv": 19.3756,
           "diesel_s50": 20.945,
-          "gasohol_prem": 17.4418,
-          "gasohol_reg": 14.7373,
+          "gasohol_prem": 18.2957,
+          "gasohol_reg": 15.1451,
           "glp_kg": null
         },
         {
